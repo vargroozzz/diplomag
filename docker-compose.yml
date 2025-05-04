@@ -1,0 +1,45 @@
+services:
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://backend:4000
+    networks:
+      - beekeepers-network
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/beekeepers
+      - JWT_SECRET=rxRkSCngw2mOZUeUWAT1d4KMNKBSRpv3
+      - NODE_ENV=production
+    networks:
+      - beekeepers-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - beekeepers-network
+
+networks:
+  beekeepers-network:
+    driver: bridge
+
+volumes:
+  mongodb_data: 

@@ -1,0 +1,83 @@
+{
+  "common": {
+    "loading": "Завантаження...",
+    "error": "Сталася помилка",
+    "success": "Успішно",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "edit": "Редагувати",
+    "create": "Створити",
+    "search": "Пошук",
+    "noResults": "Нічого не знайдено",
+    "notSpecified": "Не вказано"
+  },
+  "auth": {
+    "login": "Увійти",
+    "logout": "Вийти",
+    "register": "Зареєструватися",
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "confirmPassword": "Підтвердити пароль",
+    "forgotPassword": "Забули пароль?",
+    "rememberMe": "Запам'ятати мене",
+    "username": "Ім'я користувача",
+    "invalidCredentials": "Невірна електронна пошта або пароль",
+    "alreadyHaveAccount": "Вже маєте обліковий запис?",
+    "dontHaveAccount": "Не маєте облікового запису?"
+  },
+  "profile": {
+    "title": "Профіль",
+    "personalInfo": "Особиста інформація",
+    "expertise": "Досвід",
+    "bio": "Біографія",
+    "beekeeperSince": "Бджоляр з",
+    "activeHives": "активних вуликів"
+  },
+  "forum": {
+    "title": "Форум",
+    "createPost": "Створити пост",
+    "posts": "Пости",
+    "comments": "Коментарі",
+    "like": "Подобається",
+    "postCreated": "Пост успішно створено",
+    "commentAdded": "Коментар успішно додано",
+    "loginToLike": "Будь ласка, увійдіть, щоб ставити лайки",
+    "loginToComment": "Будь ласка, увійдіть, щоб коментувати",
+    "postTitle": "Заголовок",
+    "postContent": "Зміст",
+    "titleLengthError": "Заголовок має містити щонайменше 3 символи",
+    "contentLengthError": "Зміст має містити щонайменше 10 символів",
+    "noPosts": "Поки що немає постів. Створіть перший!",
+    "likes": "Лайків",
+    "writeComment": "Напишіть коментар...",
+    "addComment": "Додати коментар"
+  },
+  "knowledgeBase": {
+    "title": "База знань",
+    "search": "Пошук ресурсів...",
+    "categories": "Категорії",
+    "resources": "Ресурси",
+    "readMore": "Читати далі"
+  },
+  "navigation": {
+    "home": "Головна",
+    "dashboard": "Панель керування",
+    "profile": "Профіль",
+    "settings": "Налаштування",
+    "help": "Допомога"
+  },
+  "menu": {
+    "home": "Головна",
+    "forums": "Форуми",
+    "knowledgeBase": "База знань",
+    "events": "Події",
+    "profile": "Профіль"
+  },
+  "app": {
+    "title": "Спільнота бджолярів"
+  },
+  "footer": {
+    "rights": "Всі права захищені"
+  }
+} 

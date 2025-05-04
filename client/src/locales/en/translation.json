@@ -1,0 +1,82 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "noResults": "No results found"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember Me",
+    "username": "Username",
+    "invalidCredentials": "Invalid email or password",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?"
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "expertise": "Expertise",
+    "bio": "Bio",
+    "beekeeperSince": "Beekeeper since",
+    "activeHives": "active hives"
+  },
+  "forum": {
+    "title": "Forum",
+    "createPost": "Create Post",
+    "posts": "Posts",
+    "comments": "Comments",
+    "like": "Like",
+    "postCreated": "Post created successfully",
+    "commentAdded": "Comment added successfully",
+    "loginToLike": "Please log in to like posts",
+    "loginToComment": "Please log in to comment",
+    "postTitle": "Title",
+    "postContent": "Content",
+    "titleLengthError": "Title must be at least 3 characters long",
+    "contentLengthError": "Content must be at least 10 characters long",
+    "noPosts": "No posts yet. Be the first to create one!",
+    "likes": "Likes",
+    "writeComment": "Write a comment...",
+    "addComment": "Add Comment"
+  },
+  "knowledgeBase": {
+    "title": "Knowledge Base",
+    "search": "Search resources...",
+    "categories": "Categories",
+    "resources": "Resources",
+    "readMore": "Read More"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "help": "Help"
+  },
+  "menu": {
+    "home": "Home",
+    "forums": "Forums",
+    "knowledgeBase": "Knowledge Base",
+    "events": "Events",
+    "profile": "Profile"
+  },
+  "app": {
+    "title": "Beekeepers Community"
+  },
+  "footer": {
+    "rights": "All rights reserved"
+  }
+} 

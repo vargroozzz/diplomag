@@ -25,6 +25,7 @@ import {
   Person as PersonIcon,
   Login as LoginIcon,
   HowToReg as RegisterIcon,
+  Map as MapIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -69,6 +70,7 @@ const Layout = () => {
 
   const menuItems = [
     { text: t('menu.home'), icon: <HomeIcon />, path: '/' },
+    { text: t('menu.map'), icon: <MapIcon />, path: '/map', protected: true },
     { text: t('menu.forums'), icon: <ForumIcon />, path: '/forums', protected: true },
     { text: t('menu.knowledgeBase'), icon: <BookIcon />, path: '/knowledge-base', protected: true },
     { text: t('menu.events'), icon: <EventIcon />, path: '/events', protected: true },

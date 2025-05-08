@@ -15,6 +15,7 @@ import Events from './pages/Events';
 import Profile from './pages/Profile';
 import ResourceDetail from './pages/ResourceDetail';
 import Home from './pages/Home';
+import MapPage from './pages/MapPage';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="knowledge-base/:id" element={<ResourceDetail />} />
               <Route path="events" element={<Events />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="map" element={<MapPage />} />
             </Route>
           </Routes>
         </ThemeProvider>

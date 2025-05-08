@@ -34,7 +34,7 @@ const ResourceDetail: React.FC = () => {
   useEffect(() => {
     const fetchResource = async () => {
       try {
-        const response = await fetch(`/api/knowledge-base/${id}`);
+        const response = await fetch(`/api/v1/knowledge-base/${id}`);
         if (!response.ok) {
           throw new Error('Resource not found');
         }

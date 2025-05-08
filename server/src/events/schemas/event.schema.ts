@@ -18,10 +18,10 @@ export class Event {
   location: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  organizer: Types.ObjectId;
+  organizerId: Types.ObjectId;
 
   @Prop({ type: [Types.ObjectId], ref: 'User', default: [] })
-  attendees: Types.ObjectId[];
+  attendeesIds: Types.ObjectId[];
 
   @Prop({ required: true })
   maxAttendees: number;

@@ -9,7 +9,8 @@
     "edit": "Edit",
     "create": "Create",
     "search": "Search",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "all": "All"
   },
   "auth": {
     "login": "Login",
@@ -57,7 +58,33 @@
     "search": "Search resources...",
     "categories": "Categories",
     "resources": "Resources",
-    "readMore": "Read More"
+    "readMore": "Read More",
+    "category": {
+      "Getting Started": "Getting Started",
+      "Health & Safety": "Health & Safety",
+      "Seasonal Care": "Seasonal Care"
+    },
+    "resourceTitle": {
+      "1": "Beginner's Guide to Beekeeping",
+      "2": "Hive Health Management",
+      "3": "Seasonal Beekeeping Calendar"
+    },
+    "resourceDescription": {
+      "1": "A comprehensive guide covering the basics of beekeeping, from setting up your first hive to harvesting honey.",
+      "2": "Learn how to identify and prevent common hive diseases and pests.",
+      "3": "Month-by-month guide to beekeeping tasks and activities throughout the year."
+    },
+    "tag": {
+      "beginner": "beginner",
+      "hive setup": "hive setup",
+      "basics": "basics",
+      "diseases": "diseases",
+      "pests": "pests",
+      "prevention": "prevention",
+      "calendar": "calendar",
+      "seasonal": "seasonal",
+      "maintenance": "maintenance"
+    }
   },
   "navigation": {
     "home": "Home",
@@ -68,6 +95,7 @@
   },
   "menu": {
     "home": "Home",
+    "map": "Map",
     "forums": "Forums",
     "knowledgeBase": "Knowledge Base",
     "events": "Events",
@@ -78,5 +106,27 @@
   },
   "footer": {
     "rights": "All rights reserved"
+  },
+  "map": {
+    "title": "Interactive Map",
+    "addHive": "Add Hive",
+    "cancelAddHive": "Cancel Add Hive",
+    "newHiveLocation": "New Hive Location - Click to confirm or fill details",
+    "addHiveDialog": {
+      "title": "Add New Hive",
+      "nameLabel": "Hive Name",
+      "notesLabel": "Notes (Optional)"
+    },
+    "addField": "Add Field",
+    "finishDrawing": "Finish Drawing",
+    "addFieldDialog": {
+      "title": "Add New Field",
+      "nameLabel": "Field Name",
+      "cropTypeLabel": "Crop Type",
+      "bloomStartLabel": "Blooming Starts",
+      "bloomEndLabel": "Blooming Ends",
+      "treatmentDatesLabel": "Planned Treatment Dates",
+      "addTreatmentDate": "Add Treatment Date"
+    }
   }
 } 

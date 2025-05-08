@@ -38,12 +38,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post(`${API_URL}/api/auth/login`, {
+      const response = await axios.post(`${API_URL}/api/v1/auth/login`, {
         email,
         password,
       });
-      const { access_token, user } = response.data;
+      const { access_token, refresh_token, user } = response.data;
       localStorage.setItem('token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       setUser(user);
     } catch (err) {
@@ -58,14 +59,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post(`${API_URL}/api/auth/register`, {
+      const response = await axios.post(`${API_URL}/api/v1/auth/register`, {
         username,
         email,
         password,
       });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      const { access_token, refresh_token, user } = response.data;
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       setUser(user);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during registration');
@@ -77,28 +79,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   }, []);
 
-  // Check token and load user data on mount
+  // Check token and load user data on mount, with refresh logic
   React.useEffect(() => {
     const loadUser = async () => {
-      const token = localStorage.getItem('token');
+      let token = localStorage.getItem('token');
+      let refresh_token = localStorage.getItem('refresh_token');
       if (token) {
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const response = await axios.get(`${API_URL}/api/auth/me`);
+          const response = await axios.get(`${API_URL}/api/v1/auth/me`);
           setUser(response.data);
-        } catch (error) {
-          console.error('Failed to load user:', error);
-          localStorage.removeItem('token');
-          delete axios.defaults.headers.common['Authorization'];
+        } catch (error: any) {
+          if (error.response && error.response.status === 401 && refresh_token) {
+            // Try to refresh token
+            try {
+              const refreshResponse = await axios.post(`${API_URL}/api/v1/auth/refresh`, { refreshToken: refresh_token });
+              const { access_token: newToken } = refreshResponse.data;
+              localStorage.setItem('token', newToken);
+              axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+              // Retry original request
+              const retryResponse = await axios.get(`${API_URL}/api/v1/auth/me`);
+              setUser(retryResponse.data);
+            } catch {
+              logout();
+            }
+          } else {
+            logout();
+          }
         }
       }
     };
     loadUser();
-  }, []);
+  }, [logout, API_URL]);
 
   const value = {
     user,

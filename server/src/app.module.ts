@@ -6,6 +6,9 @@ import { UsersModule } from './users/users.module';
 import { ForumModule } from './forum/forum.module';
 import { EventsModule } from './events/events.module';
 import { ArticlesModule } from './articles/articles.module';
+import { HivesModule } from './hives/hives.module';
+import { FieldsModule } from './fields/fields.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { ArticlesModule } from './articles/articles.module';
     ForumModule,
     EventsModule,
     ArticlesModule,
+    HivesModule,
+    FieldsModule,
+    HealthModule,
   ],
 })
 export class AppModule {} 

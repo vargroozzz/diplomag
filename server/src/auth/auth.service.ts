@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/schemas/user.schema';
 import * as crypto from 'crypto';
+import { JwtUserPayload } from './types/jwt-user-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -33,9 +34,10 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { email: user.email, sub: user._id };
+    const payload = { email: user.email, sub: user._id, username: user.username };
     return {
       access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
       user: {
         id: user._id,
         email: user.email,
@@ -50,5 +52,25 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
     });
+  }
+
+  async getMe(user: JwtUserPayload) {
+    const dbUser = await this.usersService.findOne(user.userId);
+    if (!dbUser) throw new UnauthorizedException('User not found');
+    const { password, _id, ...result } = dbUser;
+    return { id: _id, ...result };
+  }
+
+  async refresh(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken, { ignoreExpiration: false });
+      if (!payload || !payload.sub) throw new UnauthorizedException('Invalid refresh token');
+      const accessPayload = { email: payload.email, sub: payload.sub, username: payload.username };
+      return {
+        access_token: this.jwtService.sign(accessPayload),
+      };
+    } catch (e) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
   }
 } 

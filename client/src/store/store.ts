@@ -3,6 +3,7 @@ import { usersApi } from './api/usersApi';
 import { authApi } from './api/authApi';
 import { forumApi } from './api/forumApi';
 import { knowledgeBaseApi } from './api/knowledgeBaseApi';
+import { mapApi } from './api/mapApi';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [forumApi.reducerPath]: forumApi.reducer,
     [knowledgeBaseApi.reducerPath]: knowledgeBaseApi.reducer,
+    [mapApi.reducerPath]: mapApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -17,6 +19,7 @@ export const store = configureStore({
       authApi.middleware,
       forumApi.middleware,
       knowledgeBaseApi.middleware,
+      mapApi.middleware,
     ),
 });
 

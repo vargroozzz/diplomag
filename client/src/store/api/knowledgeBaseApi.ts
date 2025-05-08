@@ -14,7 +14,7 @@ interface Resource {
 export const knowledgeBaseApi = createApi({
   reducerPath: 'knowledgeBaseApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: '/api',
+    baseUrl: '/api/v1',
   }),
   tagTypes: ['Resource'],
   endpoints: (builder) => ({

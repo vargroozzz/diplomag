@@ -19,6 +19,7 @@ export class ForumService {
     return await this.forumPostModel
       .find()
       .populate('author', 'username')
+      .populate('comments.author', 'username')
       .sort({ createdAt: -1 })
       .exec();
   }
@@ -56,6 +57,16 @@ export class ForumService {
       .findByIdAndUpdate(
         postId,
         { $addToSet: { likes: userId } },
+        { new: true },
+      )
+      .exec();
+  }
+
+  async unlikePost(postId: string, userId: Types.ObjectId) {
+    return await this.forumPostModel
+      .findByIdAndUpdate(
+        postId,
+        { $pull: { likes: userId } },
         { new: true },
       )
       .exec();

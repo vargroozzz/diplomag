@@ -12,7 +12,8 @@ interface RegisterRequest {
 }
 
 interface AuthResponse {
-  token: string;
+  access_token: string;
+  refresh_token: string;
   user: {
     id: string;
     username: string;
@@ -23,7 +24,7 @@ interface AuthResponse {
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: '/api',
+    baseUrl: '/api/v1',
   }),
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -43,6 +44,13 @@ export const authApi = createApi({
     getMe: builder.query<AuthResponse['user'], void>({
       query: () => 'auth/me',
     }),
+    refresh: builder.mutation<{ access_token: string }, { refreshToken: string }>({
+      query: (body) => ({
+        url: 'auth/refresh',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
@@ -50,4 +58,5 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useGetMeQuery,
+  useRefreshMutation,
 } = authApi; 

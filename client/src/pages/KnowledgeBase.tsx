@@ -10,6 +10,7 @@ import {
   Stack,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { useTranslation } from 'react-i18next';
 
 interface Resource {
   id: string;
@@ -50,6 +51,7 @@ const mockResources: Resource[] = [
 const KnowledgeBase: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const categories = Array.from(new Set(mockResources.map(resource => resource.category)));
 
@@ -68,14 +70,14 @@ const KnowledgeBase: React.FC = () => {
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Knowledge Base
+          {t('knowledgeBase.title')}
         </Typography>
         
         <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
             variant="outlined"
-            placeholder="Search resources..."
+            placeholder={t('knowledgeBase.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -86,7 +88,7 @@ const KnowledgeBase: React.FC = () => {
 
         <Stack direction="row" spacing={1} sx={{ mb: 4, flexWrap: 'wrap', gap: 1 }}>
           <Chip
-            label="All Categories"
+            label={t('knowledgeBase.categories') + ': ' + t('common.all')}
             onClick={() => setSelectedCategory(null)}
             color={selectedCategory === null ? 'primary' : 'default'}
             variant={selectedCategory === null ? 'filled' : 'outlined'}
@@ -94,7 +96,7 @@ const KnowledgeBase: React.FC = () => {
           {categories.map((category) => (
             <Chip
               key={category}
-              label={category}
+              label={t(`knowledgeBase.category.${category}`, category)}
               onClick={() => setSelectedCategory(category)}
               color={selectedCategory === category ? 'primary' : 'default'}
               variant={selectedCategory === category ? 'filled' : 'outlined'}
@@ -107,23 +109,23 @@ const KnowledgeBase: React.FC = () => {
             <Card key={resource.id}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  {resource.title}
+                  {t(`knowledgeBase.resourceTitle.${resource.id}`, resource.title)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" paragraph>
-                  {resource.description}
+                  {t(`knowledgeBase.resourceDescription.${resource.id}`, resource.description)}
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                   {resource.tags.map((tag) => (
                     <Chip
                       key={tag}
-                      label={tag}
+                      label={t(`knowledgeBase.tag.${tag}`, tag)}
                       size="small"
                       variant="outlined"
                     />
                   ))}
                 </Box>
                 <Typography variant="caption" color="primary">
-                  {resource.category}
+                  {t(`knowledgeBase.category.${resource.category}`, resource.category)}
                 </Typography>
               </CardContent>
             </Card>

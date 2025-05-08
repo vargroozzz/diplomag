@@ -13,33 +13,33 @@ import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
-
-const validationSchema = Yup.object({
-  email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-});
+import { useTranslation } from 'react-i18next';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const formik = useFormik({
     initialValues: {
       email: '',
       password: '',
     },
-    validationSchema,
+    validationSchema: Yup.object({
+      email: Yup.string()
+        .email(t('auth.invalidCredentials'))
+        .required(t('auth.email') + ' ' + t('common.error')),
+      password: Yup.string()
+        .min(6, t('auth.password') + ' ' + t('common.error'))
+        .required(t('auth.password') + ' ' + t('common.error')),
+    }),
     onSubmit: async (values) => {
       try {
         await login(values.email, values.password);
         navigate('/');
-      } catch (error) {
-        setError('Invalid email or password');
+      } catch {
+        setError(t('auth.invalidCredentials'));
       }
     },
   });
@@ -65,7 +65,7 @@ const Login: React.FC = () => {
           }}
         >
           <Typography component="h1" variant="h5">
-            Sign in
+            {t('auth.login')}
           </Typography>
 
           {error && (
@@ -84,7 +84,7 @@ const Login: React.FC = () => {
               fullWidth
               id="email"
               name="email"
-              label="Email Address"
+              label={t('auth.email')}
               autoComplete="email"
               autoFocus
               value={formik.values.email}
@@ -97,7 +97,7 @@ const Login: React.FC = () => {
               fullWidth
               id="password"
               name="password"
-              label="Password"
+              label={t('auth.password')}
               type="password"
               autoComplete="current-password"
               value={formik.values.password}
@@ -112,15 +112,18 @@ const Login: React.FC = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={formik.isSubmitting}
             >
-              Sign In
+              {t('auth.login')}
             </Button>
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Link
                 component="button"
                 variant="body2"
                 onClick={() => navigate('/register')}
               >
-                Don't have an account? Sign Up
+                {t('auth.dontHaveAccount')}
+              </Link>
+              <Link href="/" variant="body2">
+                {t('auth.forgotPassword')}
               </Link>
             </Box>
           </Box>

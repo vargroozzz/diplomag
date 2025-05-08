@@ -65,6 +65,8 @@ const ForumPost: React.FC<ForumPostProps> = ({ post, onLike, onComment }) => {
     }
   };
 
+  console.log(isLiked);
+
   return (
     <Card sx={{ mb: 4 }}>
       <CardContent>
@@ -74,7 +76,7 @@ const ForumPost: React.FC<ForumPostProps> = ({ post, onLike, onComment }) => {
               {post.title}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Avatar>{post.author.username[0].toUpperCase()}</Avatar>
+              <Avatar>{post.author.username?.[0]?.toUpperCase?.()}</Avatar>
               <Typography variant="subtitle1" component="span">
                 {post.author.username}
               </Typography>
@@ -115,7 +117,7 @@ const ForumPost: React.FC<ForumPostProps> = ({ post, onLike, onComment }) => {
           <React.Fragment key={comment._id}>
             <ListItem alignItems="flex-start">
               <ListItemAvatar>
-                <Avatar>{comment.author.username[0].toUpperCase()}</Avatar>
+                <Avatar>{comment.author.username?.[0]?.toUpperCase?.()}</Avatar>
               </ListItemAvatar>
               <ListItemText
                 primary={comment.author.username}

@@ -11,7 +11,7 @@ export class EventsService {
     private eventModel: Model<EventDocument>,
   ) {}
 
-  async create(createEventDto: CreateEventDto) {
+  async create(createEventDto: CreateEventDto & { organizerId: Types.ObjectId }) {
     const createdEvent = new this.eventModel(createEventDto);
     return await createdEvent.save();
   }
@@ -48,26 +48,26 @@ export class EventsService {
   async registerForEvent(eventId: string, userId: Types.ObjectId) {
     const event = await this.findOne(eventId);
     
-    if (event.attendees.includes(userId)) {
+    if (event.attendeesIds.includes(userId)) {
       throw new Error('User is already registered for this event');
     }
     
-    if (event.attendees.length >= event.maxAttendees) {
+    if (event.attendeesIds.length >= event.maxAttendees) {
       throw new Error('Event is full');
     }
     
-    event.attendees.push(userId);
+    event.attendeesIds.push(userId);
     return await event.save();
   }
 
   async cancelRegistration(eventId: string, userId: Types.ObjectId) {
     const event = await this.findOne(eventId);
     
-    if (!event.attendees.includes(userId)) {
+    if (!event.attendeesIds.includes(userId)) {
       throw new Error('User is not registered for this event');
     }
     
-    event.attendees = event.attendees.filter(id => id !== userId);
+    event.attendeesIds = event.attendeesIds.filter(id => id !== userId);
     return await event.save();
   }
 

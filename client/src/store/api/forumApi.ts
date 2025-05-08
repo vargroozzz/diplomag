@@ -33,7 +33,7 @@ interface CreateCommentRequest {
 export const forumApi = createApi({
   reducerPath: 'forumApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: '/api',
+    baseUrl: '/api/v1',
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -71,6 +71,13 @@ export const forumApi = createApi({
       }),
       invalidatesTags: ['ForumPost'],
     }),
+    unlikePost: builder.mutation<ForumPost, string>({
+      query: (postId) => ({
+        url: `forum/${postId}/unlike`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['ForumPost'],
+    }),
   }),
 });
 
@@ -79,4 +86,5 @@ export const {
   useCreatePostMutation,
   useAddCommentMutation,
   useLikePostMutation,
+  useUnlikePostMutation,
 } = forumApi; 

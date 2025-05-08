@@ -1,98 +1,66 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Container, Typography, Snackbar, Alert } from '@mui/material';
-import axios from 'axios';
 import ForumList from '../components/forum/ForumList';
 import { useAuth } from '../context/AuthContext';
-
-interface ForumPost {
-  _id: string;
-  title: string;
-  content: string;
-  author: {
-    _id: string;
-    username: string;
-  };
-  likes: string[];
-  comments: Array<{
-    _id: string;
-    content: string;
-    author: {
-      _id: string;
-      username: string;
-    };
-    createdAt: string;
-  }>;
-  createdAt: string;
-}
+import {
+  useGetPostsQuery,
+  useCreatePostMutation,
+  useAddCommentMutation,
+  useLikePostMutation,
+  useUnlikePostMutation,
+} from '../store/api/forumApi';
+import { useTranslation } from 'react-i18next';
 
 const Forums: React.FC = () => {
-  const [posts, setPosts] = useState<ForumPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { t } = useTranslation();
 
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get('/api/forum');
-      setPosts(response.data);
-    } catch (error) {
-      setError('Failed to fetch forum posts');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  const { data: posts = [], isLoading } = useGetPostsQuery();
+  const [createPost] = useCreatePostMutation();
+  const [addComment] = useAddCommentMutation();
+  const [likePost] = useLikePostMutation();
+  const [unlikePost] = useUnlikePostMutation();
 
   const handleCreatePost = async (title: string, content: string) => {
     try {
-      const response = await axios.post('/api/forum', { title, content });
-      setPosts([response.data, ...posts]);
-      setSuccess('Post created successfully');
-    } catch (error) {
-      setError('Failed to create post');
+      await createPost({ title, content }).unwrap();
+      setSuccess(t('forum.postCreated'));
+    } catch {
+      setError(t('common.error'));
     }
   };
 
   const handleLikePost = async (postId: string) => {
     if (!user) {
-      setError('Please log in to like posts');
+      setError(t('forum.loginToLike'));
       return;
     }
-
+    const post = posts.find((p) => p._id === postId);
+    if (!post) return;
+    const hasLiked = post.likes.includes(user.id);
     try {
-      const response = await axios.post(`/api/forum/${postId}/like`);
-      setPosts(
-        posts.map((post) =>
-          post._id === postId ? response.data : post
-        )
-      );
-    } catch (error) {
-      setError('Failed to like post');
+      if (hasLiked) {
+        await unlikePost(postId).unwrap();
+      } else {
+        await likePost(postId).unwrap();
+      }
+    } catch {
+      setError(t('common.error'));
     }
   };
 
   const handleAddComment = async (postId: string, content: string) => {
     if (!user) {
-      setError('Please log in to comment');
+      setError(t('forum.loginToComment'));
       return;
     }
-
     try {
-      const response = await axios.post(`/api/forum/${postId}/comments`, {
-        content,
-      });
-      setPosts(
-        posts.map((post) =>
-          post._id === postId ? response.data : post
-        )
-      );
-      setSuccess('Comment added successfully');
-    } catch (error) {
-      setError('Failed to add comment');
+      await addComment({ postId, comment: { content } }).unwrap();
+      setSuccess(t('forum.commentAdded'));
+    } catch {
+      setError(t('common.error'));
     }
   };
 
@@ -104,11 +72,11 @@ const Forums: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Forum Discussions
+        {t('forum.title')}
       </Typography>
       <ForumList
         posts={posts}
-        loading={loading}
+        loading={isLoading}
         onCreatePost={handleCreatePost}
         onLikePost={handleLikePost}
         onAddComment={handleAddComment}

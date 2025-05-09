@@ -27,14 +27,17 @@ async function bootstrap() {
   // Register Fastify plugins
   await app.register(fastifyHelmet);
 
-  // CORS Configuration
-  const corsOrigin = process.env.CORS_ORIGIN;
+  // CORS Configuration using FRONTEND_URL
+  const frontendUrl = process.env.FRONTEND_URL;
   const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001']; // Local development origins
-  if (corsOrigin) {
-    allowedOrigins.push(corsOrigin); // Add production origin if set
-    console.log(`CORS enabled for origin: ${corsOrigin}`);
+  
+  if (frontendUrl) {
+    allowedOrigins.push(frontendUrl); // Add production origin if set
+    console.log(`CORS enabled for origin: ${frontendUrl}`);
   } else {
-    console.warn('CORS_ORIGIN environment variable not set. CORS might be restricted to development origins.');
+    // In a deployed environment, FRONTEND_URL should always be set.
+    // For local, it might not be, so we rely on the hardcoded localhost values.
+    console.warn('FRONTEND_URL environment variable not set. CORS might be restricted to development origins if not running locally.');
   }
 
   await app.register(fastifyCors, {

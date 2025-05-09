@@ -10,7 +10,8 @@
     "create": "Create",
     "search": "Search",
     "noResults": "No results found",
-    "all": "All"
+    "all": "All",
+    "requiredError": "is required"
   },
   "auth": {
     "login": "Login",
@@ -24,7 +25,14 @@
     "username": "Username",
     "invalidCredentials": "Invalid email or password",
     "alreadyHaveAccount": "Already have an account?",
-    "dontHaveAccount": "Don't have an account?"
+    "dontHaveAccount": "Don't have an account?",
+    "usernameLengthError": "Username must be at least 3 characters",
+    "invalidEmail": "Invalid email address",
+    "passwordLengthError": "Password must be at least 6 characters",
+    "passwordsMustMatch": "Passwords must match",
+    "registerSuccessMessage": "Registration successful. Please check your email to verify your account.",
+    "registrationFailed": "Registration failed. Please try again.",
+    "loginWithGoogle": "Login with Google"
   },
   "profile": {
     "title": "Profile",
@@ -128,5 +136,12 @@
       "treatmentDatesLabel": "Planned Treatment Dates",
       "addTreatmentDate": "Add Treatment Date"
     }
+  },
+  "verifyEmail": {
+    "title": "Email Verification",
+    "verifying": "Verifying your email...",
+    "success": "Email verified successfully! You can now log in.",
+    "error": "Failed to verify email. The token might be invalid or expired.",
+    "missingToken": "Verification token not found in URL."
   }
 } 

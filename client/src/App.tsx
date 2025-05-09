@@ -16,6 +16,8 @@ import Profile from './pages/Profile';
 import ResourceDetail from './pages/ResourceDetail';
 import Home from './pages/Home';
 import MapPage from './pages/MapPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
         <ThemeProvider theme={defaultTheme}>
           <CssBaseline />
           <Routes>
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="login" element={<Login />} />

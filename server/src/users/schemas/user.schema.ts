@@ -24,6 +24,15 @@ export class User {
   expertise: string[];
 
   @Prop({ default: false })
+  isEmailVerified: boolean;
+
+  @Prop({ type: String, select: false })
+  emailVerificationToken?: string;
+
+  @Prop({ type: Date, select: false })
+  emailVerificationExpires?: Date;
+
+  @Prop({ default: false })
   isAdmin: boolean;
 }
 

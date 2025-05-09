@@ -8,12 +8,14 @@ import {
   Box,
   Alert,
   Link,
+  CircularProgress,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import GoogleIcon from '@mui/icons-material/Google';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -112,7 +114,19 @@ const Login: React.FC = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={formik.isSubmitting}
             >
-              {t('auth.login')}
+              {formik.isSubmitting ? <CircularProgress size={24} /> : t('auth.login')}
+            </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              startIcon={<GoogleIcon />}
+              sx={{ mb: 2 }}
+              onClick={() => {
+                const backendUrl = import.meta.env.VITE_API_URL || '';
+                window.location.href = `${backendUrl}/api/v1/auth/google`;
+              }}
+            >
+              {t('auth.loginWithGoogle', 'Login with Google')}
             </Button>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Link

@@ -8,6 +8,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiBody, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { ConfigService } from '@nestjs/config';
 import { AuthenticatedUserLoginPayload, GoogleUserProfile } from './types/user-auth.types';
 
 // Define an interface that extends FastifyRequest to include the user property from Passport
@@ -19,7 +20,10 @@ interface AuthenticatedFastifyRequest extends FastifyRequest {
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -67,11 +71,20 @@ export class AuthController {
 
   @Get('google')
   @Version('1')
-  @UseGuards(AuthGuard('google'))
-  @ApiOperation({ summary: 'Initiate Google OAuth2 login flow' })
+  @ApiOperation({ summary: 'Initiate Google OAuth2 login flow (Manual Redirect)' })
   @ApiResponse({ status: 302, description: 'Redirects to Google for authentication.' })
-  async googleAuth(@Req() req: AuthenticatedFastifyRequest) {
-    // Guard initiates the redirect
+  async googleAuthManualRedirect(@Res({ passthrough: true }) res: FastifyReply) {
+    const clientID = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const callbackURL = this.configService.get<string>('GOOGLE_CALLBACK_URL');
+    
+    if (!clientID || !callbackURL) {
+      throw new Error('Google OAuth clientID or callbackURL not configured for manual redirect.');
+    }
+
+    const scope = 'email profile';
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=${encodeURIComponent(callbackURL)}&scope=${encodeURIComponent(scope)}&client_id=${encodeURIComponent(clientID)}`;
+    
+    return res.code(HttpStatus.FOUND).redirect(googleAuthUrl);
   }
 
   @Get('google/callback')
@@ -79,17 +92,12 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiExcludeEndpoint()
   async googleAuthRedirect(@Req() req: AuthenticatedFastifyRequest, @Res({ passthrough: true }) res: FastifyReply) { 
-    // req.user here comes from GoogleStrategy's validate method, should match GoogleUserProfile
-    const googleUser = req.user as GoogleUserProfile; // Assert type for clarity and safety
-    
+    const googleUser = req.user as GoogleUserProfile;
     if (!googleUser || !googleUser.email) { 
       return res.code(HttpStatus.UNAUTHORIZED).redirect(`${process.env.FRONTEND_URL}/login?error=google-auth-failed`);
     }
-
-    // authService.findOrCreateGoogleUser expects an object with email, firstName, lastName, picture
     const userForLogin = await this.authService.findOrCreateGoogleUser(googleUser);
     const tokens = await this.authService.login(userForLogin);
-
     const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?accessToken=${tokens.access_token}&refreshToken=${tokens.refresh_token}`;
     return res.code(HttpStatus.FOUND).redirect(redirectUrl);
   }

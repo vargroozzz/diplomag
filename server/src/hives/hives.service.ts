@@ -14,11 +14,11 @@ export class HivesService {
       ...createHiveDto,
       user: new Types.ObjectId(userId),
     });
-    return createdHive.save();
+    return await createdHive.save();
   }
 
   async findAllByUser(userId: string): Promise<Hive[]> {
-    return this.hiveModel.find({ user: new Types.ObjectId(userId) }).exec();
+    return await this.hiveModel.find({ user: new Types.ObjectId(userId) }).exec();
   }
 
   async findOne(id: string, userId: string): Promise<Hive> {
@@ -34,7 +34,7 @@ export class HivesService {
       { _id: id, user: new Types.ObjectId(userId) },
       updateHiveDto,
       { new: true },
-    );
+    ).exec();
     if (!existingHive) {
       throw new NotFoundException(`Hive with ID "${id}" not found for this user`);
     }

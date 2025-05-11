@@ -5,15 +5,14 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import * as crypto from 'crypto';
 import { JwtUserPayload } from './types/jwt-user-payload.type';
 import { EmailService } from '../email/email.service';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Types } from 'mongoose';
+import { UserWithId, AuthenticatedUserLoginPayload, MeUserResponse } from './types/user-auth.types';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private usersService: UsersService,
     private jwtService: JwtService,
     private emailService: EmailService,
@@ -31,25 +30,25 @@ export class AuthService {
     return hash === verifyHash;
   }
 
-  async validateUser(email: string, password: string) {
+  async validateUser(email: string, password: string): Promise<AuthenticatedUserLoginPayload | null> {
     const user = await this.usersService.findByEmail(email);
-    if (user && (await this.verifyPassword(password, user.password))) {
+    if (user && user.password && (await this.verifyPassword(password, user.password))) {
       if (!user.isEmailVerified) {
         throw new ForbiddenException('Please verify your email address before logging in.');
       }
-      const { password, ...result } = user;
+      const { password: _p, ...result } = user as UserWithId;
       return result;
     }
     return null;
   }
 
-  async login(user: any) {
-    const payload = { email: user.email, sub: user._id, username: user.username };
+  async login(user: AuthenticatedUserLoginPayload) {
+    const payload = { email: user.email, sub: user._id.toString(), username: user.username };
     return {
       access_token: this.jwtService.sign(payload),
       refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
       user: {
-        id: user._id,
+        id: user._id.toString(),
         email: user.email,
         username: user.username,
         isEmailVerified: user.isEmailVerified,
@@ -64,7 +63,7 @@ export class AuthService {
     const verificationExpires = new Date();
     verificationExpires.setHours(verificationExpires.getHours() + 1);
 
-    const newUser = {
+    const newUserInput: Partial<User> = {
       ...createUserDto,
       password: hashedPassword,
       isEmailVerified: false,
@@ -72,9 +71,9 @@ export class AuthService {
       emailVerificationExpires: verificationExpires,
     }
 
-    let createdUser: User;
+    let createdUser: UserDocument;
     try {
-      createdUser = await this.usersService.create(newUser);
+      createdUser = await this.usersService.create(newUserInput);
     } catch (error) {
         this.logger.error(`Registration failed: ${error.message}`);
         throw new BadRequestException(error.message || 'Registration failed');
@@ -94,84 +93,101 @@ export class AuthService {
   }
 
   async verifyEmail(token: string): Promise<{ message: string }> {
-    const user = await this.userModel.findOne({
-      emailVerificationToken: token,
-      emailVerificationExpires: { $gt: new Date() },
-    });
+    const user = await this.usersService.findByEmailVerificationToken(token);
 
     if (!user) {
       throw new BadRequestException('Invalid or expired verification token.');
     }
 
-    user.isEmailVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationExpires = undefined;
-    await user.save();
+    await this.usersService.verifyUserEmail(user._id.toString());
 
     return { message: 'Email verified successfully. You can now log in.' };
   }
 
-  async getMe(user: JwtUserPayload) {
-    const dbUser = await this.usersService.findOne(user.userId);
-    if (!dbUser) throw new UnauthorizedException('User not found');
-    const { password, _id, ...result } = dbUser;
-    return { id: _id, ...result };
+  async getMe(userPayload: JwtUserPayload): Promise<MeUserResponse> {
+    const dbUser = await this.usersService.findOne(userPayload.userId) as UserWithId | null;
+    if (!dbUser) {
+        throw new UnauthorizedException('User not found');
+    }
+    return {
+        id: dbUser._id.toString(),
+        email: dbUser.email,
+        username: dbUser.username,
+        bio: dbUser.bio,
+        location: dbUser.location,
+        expertise: dbUser.expertise,
+        isEmailVerified: dbUser.isEmailVerified,
+        isAdmin: dbUser.isAdmin,
+    };
   }
 
   async refresh(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken, { ignoreExpiration: false });
-      if (!payload || !payload.sub) throw new UnauthorizedException('Invalid refresh token');
-      const accessPayload = { email: payload.email, sub: payload.sub, username: payload.username };
+      if (!payload || !payload.sub) {
+          throw new UnauthorizedException('Invalid refresh token payload');
+      }
+      
+      const user = await this.usersService.findOne(payload.sub) as UserWithId | null;
+      if (!user || !user.isEmailVerified) {
+        throw new UnauthorizedException('Invalid user or email not verified for refresh token.');
+      }
+      const accessPayload = { email: user.email, sub: user._id.toString(), username: user.username };
       return {
         access_token: this.jwtService.sign(accessPayload),
       };
     } catch (e) {
+      this.logger.error(`Token refresh error: ${e.message}`);
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
 
-  // Find existing user or create a new one based on Google profile
-  async findOrCreateGoogleUser(googleUser: { email: string; firstName: string; lastName: string; picture?: string; }) {
-    const existingUser = await this.usersService.findByEmail(googleUser.email);
+  async findOrCreateGoogleUser(googleUser: { email: string; firstName: string; lastName: string; picture?: string; }): Promise<AuthenticatedUserLoginPayload> {
+    let userDoc = await this.usersService.findByEmailWithDocument(googleUser.email);
+    let userToReturn: AuthenticatedUserLoginPayload;
 
-    if (existingUser) {
-      // Optional: Update user details (name, picture) from Google profile if needed
-      // Ensure email is marked verified if they previously registered manually
-      if (!existingUser.isEmailVerified) {
-          await this.userModel.updateOne({ _id: existingUser._id }, { isEmailVerified: true });
-          existingUser.isEmailVerified = true; // Update in-memory object
+    if (userDoc) {
+      if (!userDoc.isEmailVerified) {
+        userDoc = await this.usersService.updateUserDocumentFields(userDoc._id.toString(), { isEmailVerified: true });
+        if(!userDoc) throw new InternalServerErrorException('Failed to update user verification status.');
       }
-      const { password, ...user } = existingUser; // Exclude password
-      return user;
+      userToReturn = {
+        _id: userDoc._id,
+        email: userDoc.email,
+        username: userDoc.username,
+        bio: userDoc.bio,
+        location: userDoc.location,
+        expertise: userDoc.expertise,
+        isEmailVerified: userDoc.isEmailVerified,
+        isAdmin: userDoc.isAdmin,
+      };
+    } else {
+      const username = `${googleUser.firstName}${googleUser.lastName}`.toLowerCase() + Math.random().toString(36).substring(2, 6);
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const hashedPassword = await this.hashPassword(randomPassword);
+      const newUserDto: Partial<User> = {
+        email: googleUser.email,
+        username: username,
+        password: hashedPassword,
+        isEmailVerified: true, 
+      };
+      try {
+        const createdUserDoc = await this.usersService.create(newUserDto);
+        userToReturn = {
+          _id: createdUserDoc._id,
+          email: createdUserDoc.email,
+          username: createdUserDoc.username,
+          bio: createdUserDoc.bio,
+          location: createdUserDoc.location,
+          expertise: createdUserDoc.expertise,
+          isEmailVerified: createdUserDoc.isEmailVerified,
+          isAdmin: createdUserDoc.isAdmin,
+        };
+      } catch (error) {
+        this.logger.error(`Failed to create user from Google OAuth: ${error.message}`);
+        throw new InternalServerErrorException('Could not process Google login.');
+      }
     }
-
-    // User does not exist, create a new one
-    const username = `${googleUser.firstName}${googleUser.lastName}`.toLowerCase() + Math.random().toString(36).substring(2, 6); // Simple username generation
-    // Create a secure random password - user won't use it directly
-    const randomPassword = crypto.randomBytes(16).toString('hex');
-    const hashedPassword = await this.hashPassword(randomPassword);
-
-    const newUserDto = {
-      email: googleUser.email,
-      username: username, // Consider allowing user to set username later
-      password: hashedPassword, // Store hashed random password
-      isEmailVerified: true, // Google verified the email
-      // You might want to store googleId or link accounts explicitly in a real app
-    };
-
-    try {
-      const createdUser = await this.usersService.create(newUserDto);
-      // The createdUser object saved by Mongoose WILL have an _id.
-      // Return the plain object representation for the login method.
-      // Note: usersService.create returns Promise<User>, but the saved document will have _id.
-      // We might need to adjust usersService.create or fetch the user again if _id is missing.
-      // Assuming createdUser has _id after save():
-      return createdUser; // Return the user object directly
-    } catch (error) {
-      this.logger.error(`Failed to create user from Google OAuth: ${error.message}`);
-      // If error is due to duplicate username, maybe retry generation or handle differently
-      throw new InternalServerErrorException('Could not process Google login.');
-    }
+    return userToReturn;
   }
 } 

@@ -8,10 +8,12 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiBody, ApiExcludeEndpoint } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { AuthenticatedUserLoginPayload, GoogleUserProfile } from './types/user-auth.types';
 
 // Define an interface that extends FastifyRequest to include the user property from Passport
 interface AuthenticatedFastifyRequest extends FastifyRequest {
-  user?: { email: string; firstName: string; lastName: string; picture?: string; }; // Define structure of user from GoogleStrategy
+  // user can be from GoogleStrategy or LocalStrategy 
+  user?: GoogleUserProfile | AuthenticatedUserLoginPayload;
 }
 
 @ApiTags('auth')
@@ -22,7 +24,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @Version('1')
-  async login(@GetUser() user: JwtUserPayload) {
+  async login(@GetUser() user: AuthenticatedUserLoginPayload) {
     return this.authService.login(user);
   }
 
@@ -76,14 +78,17 @@ export class AuthController {
   @Version('1')
   @UseGuards(AuthGuard('google'))
   @ApiExcludeEndpoint()
-  async googleAuthRedirect(@Req() req: AuthenticatedFastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
-    const googleUser = req.user;
-    if (!googleUser) {
+  async googleAuthRedirect(@Req() req: AuthenticatedFastifyRequest, @Res({ passthrough: true }) res: FastifyReply) { 
+    // req.user here comes from GoogleStrategy's validate method, should match GoogleUserProfile
+    const googleUser = req.user as GoogleUserProfile; // Assert type for clarity and safety
+    
+    if (!googleUser || !googleUser.email) { 
       return res.code(HttpStatus.UNAUTHORIZED).redirect(`${process.env.FRONTEND_URL}/login?error=google-auth-failed`);
     }
 
-    const userData = await this.authService.findOrCreateGoogleUser(googleUser);
-    const tokens = await this.authService.login(userData);
+    // authService.findOrCreateGoogleUser expects an object with email, firstName, lastName, picture
+    const userForLogin = await this.authService.findOrCreateGoogleUser(googleUser);
+    const tokens = await this.authService.login(userForLogin);
 
     const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?accessToken=${tokens.access_token}&refreshToken=${tokens.refresh_token}`;
     return res.code(HttpStatus.FOUND).redirect(redirectUrl);

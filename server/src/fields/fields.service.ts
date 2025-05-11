@@ -40,7 +40,7 @@ export class FieldsService {
   }
 
   async findAllByUser(userId: string): Promise<Field[]> {
-    return this.fieldModel.find({ user: new Types.ObjectId(userId) }).exec();
+    return await this.fieldModel.find({ user: new Types.ObjectId(userId) }).exec();
   }
 
   async findOne(id: string, userId: string): Promise<Field> {
@@ -57,7 +57,7 @@ export class FieldsService {
       { _id: id, user: new Types.ObjectId(userId) },
       updateFieldDto, // Pass the raw DTO for now, needs transformation if geometry is included
       { new: true },
-    );
+    ).exec();
     if (!existingField) {
       throw new NotFoundException(`Field with ID "${id}" not found for this user`);
     }

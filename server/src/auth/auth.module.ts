@@ -13,7 +13,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+    PassportModule.register({ session: false }),
     EmailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

@@ -213,11 +213,18 @@ const Layout = () => {
           sx={{
             flexGrow: 1,
             p: 3,
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
             mt: '64px',
+            width: {
+              xs: '100%',
+              sm: `calc(100% - ${drawerWidth}px)`
+            },
+            ml: { sm: `${drawerWidth}px` },
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
           }}
         >
-          <Container maxWidth="lg">
+          <Container maxWidth="lg" sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Outlet />
           </Container>
         </Box>

@@ -143,5 +143,24 @@
     "success": "Email verified successfully! You can now log in.",
     "error": "Failed to verify email. The token might be invalid or expired.",
     "missingToken": "Verification token not found in URL."
+  },
+  "home": {
+    "welcomeTitle": "Welcome to Beekeepers Community",
+    "welcomeSubtitle": "Connect, learn, and grow with fellow beekeepers",
+    "exploreButton": "Explore",
+    "features": {
+      "forum": {
+        "title": "Forum",
+        "description": "Connect with fellow beekeepers, share experiences, and get advice."
+      },
+      "knowledgeBase": {
+        "title": "Knowledge Base",
+        "description": "Access comprehensive guides and resources about beekeeping."
+      },
+      "mapManagement": {
+        "title": "Hive & Field Map",
+        "description": "Manage your hives and fields with our interactive map tools."
+      }
+    }
   }
 } 

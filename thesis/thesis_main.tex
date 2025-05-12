@@ -1,0 +1,62 @@
+\documentclass[12pt, a4paper]{report} % 'report' class is common for theses
+
+% Use the custom style package
+\usepackage{beekeepers_thesis_style}
+
+% --- Document Information (for title page and PDF metadata) ---
+\title{Розробка веб-платформи для комунікації та обміну знаннями в спільноті бджолярів}
+\author{Едуард АНДРАЩУК}
+\date{Київ — 2025}
+
+% Graphics path (if images are in a subdirectory)
+\graphicspath{{images/}}
+
+\begin{document}
+
+% --- Title Page ---
+\input{title_page.tex} % Include the title page content
+
+\cleardoublepage
+\pagenumbering{roman} % Roman numerals for front matter
+
+% --- Abstract (Ukrainian) ---
+\input{abstract_uk.tex}
+\cleardoublepage
+
+% --- Abstract (English) ---
+\input{abstract_en.tex}
+\cleardoublepage
+
+% --- Table of Contents ---
+\tableofcontents
+\cleardoublepage
+
+% --- List of Figures (optional, if you have figures) ---
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename}
+\cleardoublepage
+
+% --- List of Tables (optional, if you have tables) ---
+\listoftables
+\addcontentsline{toc}{chapter}{\listtablename}
+\cleardoublepage
+
+% --- Introduction (Input before main content) ---
+\input{introduction.tex}
+\cleardoublepage
+
+% --- Main Content (Chapters) ---
+\pagenumbering{arabic} % Arabic numerals for main content
+\input{chapter1.tex}   % Analysis of the Subject Area
+\input{chapter2.tex}   % System Design
+\input{chapter3.tex}   % Implementation
+\input{chapter4.tex}   % Testing and Evaluation
+\input{conclusions.tex} % Conclusions
+
+% --- References ---
+\input{references_section.tex}
+
+% --- Appendices ---
+\input{appendices.tex}
+
+\end{document} 

@@ -1,0 +1,28 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{practice_report_style}
+
+% Placeholder for bibliography - using your thesis bib file
+\usepackage[backend=biber, style=gost-numeric, sorting=none]{biblatex} % Example: GOST-like style
+\addbibresource{../bibliography.bib}
+
+\begin{document}
+\pagenumbering{arabic} % Arabic numerals for main content
+\setcounter{page}{1} % Start page numbering from 1
+
+\title{ЗВІТ З НАУКОВО-ДОСЛІДНИЦЬКОЇ ПРАКТИКИ}
+\author{Едуард АНДРАЩУК}
+\date{Київ – 2025}
+
+\input{practice_report_title_page.tex}
+\addtocounter{page}{1} % Manually increment counter AFTER title page (which is page 1)
+
+\tableofcontents
+\clearpage
+
+\input{practice_report_safety.tex} % Section on Safety
+\input{practice_report_conference_abstract.tex} % Section for Conference Abstract
+\input{practice_report_conclusions.tex} % Section for Conclusions
+
+\printbibliography[title={Список використаних джерел}] % Bibliography
+
+\end{document} 

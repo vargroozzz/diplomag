@@ -5,7 +5,6 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import * as crypto from 'crypto';
 import { JwtUserPayload } from './types/jwt-user-payload.type';
 import { EmailService } from '../email/email.service';
-import { Types } from 'mongoose';
 import { UserWithId, AuthenticatedUserLoginPayload, MeUserResponse } from './types/user-auth.types';
 
 @Injectable()

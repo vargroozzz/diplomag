@@ -1,0 +1,43 @@
+% --- Appendices ---
+\appendix % Starts appendix numbering (A, B, C...)
+\addcontentsline{toc}{chapter}{\appendixname}
+\chapter{Приклад коду API}
+\label{app:api_code_sample}
+
+% TODO: Include a relevant snippet of backend API code (e.g., a controller method)
+\begin{verbatim}
+// Example: Backend - HivesController - create method
+@Post()
+@Version('1')
+@ApiOperation({ summary: 'Create a new hive' })
+@ApiResponse({ status: 201, description: 'Hive created successfully.' })
+@ApiResponse({ status: 400, description: 'Invalid input.' })
+create(@Body() createHiveDto: CreateHiveDto, @GetUser() user: JwtUserPayload) {
+  return this.hivesService.create(createHiveDto, user.userId);
+}
+\end{verbatim}
+
+\chapter{Документація API (Swagger)}
+\label{app:swagger_docs}
+% TODO: Include a screenshot of Swagger UI or link if publicly accessible
+Документація API була автоматично згенерована за допомогою Swagger (OpenAPI) і доступна за ендпоінтом /docs на сервері розробки.
+\begin{figure}[H]
+  \centering
+  % \includegraphics[width=0.9\textwidth]{images/swagger_screenshot.png} % Replace with your screenshot
+  \fbox{Placeholder for Swagger UI Screenshot}
+  \caption{Приклад інтерфейсу Swagger UI для API}
+  \label{fig:swagger}
+\end{figure}
+
+\chapter{Інструкція користувача}
+\label{app:user_manual}
+% TODO: Provide a brief user manual for key features.
+
+\section*{Реєстрація та вхід}
+Опис процесу реєстрації та входу, включаючи верифікацію email та вхід через Google.
+
+\section*{Використання форуму}
+Як створювати теми, писати повідомлення, коментувати.
+
+\section*{Робота з картою}
+Як додавати та переглядати вулики та поля. 

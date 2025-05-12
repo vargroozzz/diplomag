@@ -1,0 +1,138 @@
+% Custom LaTeX style for Beekeepers Community Thesis
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beekeepers_thesis_style}[
+  2024/05/12 v1.0 Beekeepers Thesis Style
+]
+
+% Required packages
+% \RequirePackage[T2A,T1]{fontenc} % Cyrillic and Latin font encodings (Not needed for XeLaTeX/LuaLaTeX)
+% \RequirePackage[utf8]{inputenc}  % UTF-8 input encoding (Handled natively by XeLaTeX/LuaLaTeX)
+\RequirePackage{fontspec}       % Use system fonts (XeLaTeX/LuaLaTeX)
+\RequirePackage[ukrainian,english]{babel} % Ukrainian and English language support (Load AFTER fontspec)
+\RequirePackage{geometry}       % For page margins
+\RequirePackage{setspace}       % For line spacing
+% \RequirePackage{times}          % Use Times New Roman font family (Use fontspec instead)
+\RequirePackage{titlesec}       % For customizing chapter/section titles
+\RequirePackage{graphicx}       % For including images
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amssymb}
+\RequirePackage{indentfirst}    % Indent first paragraph of a section
+\RequirePackage{enumitem}       % For customizing lists
+\RequirePackage{fancyhdr}       % For headers and footers (if needed beyond simple page numbers)
+\RequirePackage{tocbibind}      % Add ToC, LoF, LoT, Bibliography to ToC
+\RequirePackage{float}          % Improved float placement for figures/tables
+\RequirePackage{caption}        % Custom captions for figures/tables
+\RequirePackage{hyperref}       % For clickable links and ToC entries
+
+% --- Page Layout ---
+\geometry{
+  a4paper,
+  left=30mm,    % Left margin (typically larger for binding)
+  right=15mm,   % Right margin
+  top=20mm,     % Top margin
+  bottom=20mm,  % Bottom margin
+  headheight=15pt % For fancyhdr if used
+}
+
+% --- Font Settings (Using fontspec) ---
+\setmainfont{Times New Roman}[Ligatures=TeX] % Main text font
+\setsansfont{Arial}[Ligatures=TeX]          % Sans-serif font (for headings etc. if needed)
+\setmonofont{Courier New}                   % Monospace font (for code etc.)
+
+% \renewcommand{\familydefault}{\sfdefault} % Not needed with fontspec
+% \usepackage{times} % Not needed with fontspec
+
+% --- Line Spacing ---
+\onehalfspacing % 1.5 line spacing (common for theses)
+% \doublespacing % For double spacing if required
+
+% --- Paragraph Settings ---
+\setlength{\parindent}{1.25cm} % Standard paragraph indentation (e.g., 5 spaces or 1.27cm)
+\setlength{\parskip}{0pt}      % No extra space between paragraphs, indentation handles separation
+
+% --- Chapter and Section Heading Styles ---
+% Based on typical Ukrainian thesis styles (modify as per specific university guidelines)
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\centering} % Format: Large, Bold, Centered
+  {\chaptertitlename\ \thechapter} % Label: e.g., "РОЗДІЛ 1"
+  {20pt} % Separation between label and title
+  {\Large\bfseries} % Title format
+\titlespacing*{\chapter}{0pt}{30pt}{20pt} % Spacing around chapter title (left, before, after)
+
+\titleformat{\section}
+  {\normalfont\large\bfseries} % Format: Large, Bold
+  {\thesection} % Label: e.g., "1.1"
+  {1em} % Separation between label and title
+  {} % Title format (takes from main settings)
+\titlespacing*{\section}{0pt}{20pt}{10pt} % Spacing
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries} % Format: Normal size, Bold
+  {\thesubsection} % Label: e.g., "1.1.1"
+  {1em} % Separation
+  {}
+\titlespacing*{\subsection}{0pt}{15pt}{8pt}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\itshape} % Format: Normal size, Italic
+  {\thesubsubsection} % Label
+  {1em} % Separation
+  {}
+\titlespacing*{\subsubsection}{0pt}{12pt}{6pt}
+
+% --- Table of Contents, List of Figures/Tables ---
+\setcounter{tocdepth}{3} % Depth of ToC (sections, subsections, subsubsections)
+\setcounter{secnumdepth}{3} % Depth of numbering
+
+% --- Captions for Figures and Tables ---
+\captionsetup[figure]{labelfont=bf,labelsep=period,name=Рис.}
+\captionsetup[table]{labelfont=bf,labelsep=period,name=Таблиця}
+
+% --- Hyperref Setup ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black, % Color of internal links (e.g., ToC, citations)
+    citecolor=black, % Color of citations
+    urlcolor=blue,   % Color of external links (URLs)
+    pdftitle={Магістерська робота}, % PDF Title
+    pdfauthor={Your Name}, % PDF Author (set in main.tex)
+    bookmarks=true,
+    bookmarksopen=true,
+    pdfpagemode=UseOutlines % Show bookmarks panel by default
+}
+
+% --- Header/Footer (Simple page numbering for now) ---
+\pagestyle{plain} % Plain page numbers at the bottom center
+% For more complex headers/footers (e.g., chapter name in header):
+% \RequirePackage{fancyhdr}
+% \pagestyle{fancy}
+% \fancyhf{}
+% \fancyhead[R]{\nouppercase{\leftmark}} % Chapter name on right (even pages)
+% \fancyhead[L]{\nouppercase{\rightmark}} % Section name on left (odd pages)
+% \fancyfoot[C]{\thepage}
+% \renewcommand{\headrulewidth}{0.4pt}
+% \renewcommand{\footrulewidth}{0pt}
+
+% --- Language Specific Settings ---
+% Ukrainian names for standard parts
+\addto\captionsukrainian{
+  \renewcommand{\bibname}{Список використаних джерел} % Bibliography title
+  \renewcommand{\contentsname}{Зміст} % Table of Contents title
+  \renewcommand{\listfigurename}{Перелік рисунків} % List of Figures title
+  \renewcommand{\listtablename}{Перелік таблиць} % List of Tables title
+  \renewcommand{\chaptername}{РОЗДІЛ}
+  \renewcommand{\appendixname}{ДОДАТКИ}
+  \renewcommand{\abstractname}{Анотація} % For the abstract environment
+}
+
+% Make sure babel settings are applied after packages that might interfere
+\AtBeginDocument{
+  \selectlanguage{ukrainian}
+}
+
+% Placeholder for university logo if needed
+% \newcommand{\universitylogo}{\includegraphics[width=3cm]{path/to/logo.png}}
+
+\endinput
+%% End of beekeepers_thesis_style.sty 

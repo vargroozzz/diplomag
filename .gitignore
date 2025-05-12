@@ -1,0 +1,51 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+*.log
+
+# Build artifacts
+dist/
+
+# Env files
+.env
+.env.*
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# LaTeX (thesis/)
+thesis/**/*.aux
+thesis/**/*.bbl
+thesis/**/*.blg
+thesis/**/*.log
+thesis/**/*.out
+thesis/**/*.toc
+thesis/**/*.lof
+thesis/**/*.lot
+thesis/**/*.fls
+thesis/**/*.fdb_latexmk
+thesis/**/*.synctex.gz
+thesis/**/*.xdv
+thesis/**/*.nav
+thesis/**/*.snm
+thesis/**/*.vrb
+thesis/**/*.ilg
+thesis/**/*.ind
+thesis/**/*.idx
+thesis/**/*.glg
+thesis/**/*.glo
+thesis/**/*.gls
+thesis/**/*.acn
+thesis/**/*.acr
+thesis/**/*.alg
+thesis/**/*.ist
+thesis/**/*.xdy
+thesis/**/*.bcf
+thesis/**/*.run.xml
+*.bbl-SAVE-ERROR

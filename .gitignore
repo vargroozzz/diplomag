@@ -19,6 +19,8 @@ dist/
 *.swp
 *~
 
+*.docx
+
 # LaTeX (thesis/)
 thesis/**/*.aux
 thesis/**/*.bbl

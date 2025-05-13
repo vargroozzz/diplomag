@@ -11,6 +11,10 @@ interface RegisterRequest {
   password: string;
 }
 
+interface RegisterResponse {
+  message: string;
+}
+
 interface AuthResponse {
   access_token: string;
   refresh_token: string;
@@ -25,6 +29,18 @@ export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({ 
     baseUrl: '/api/v1',
+    prepareHeaders: (headers, { getState: _getState, endpoint }) => {
+      // List of endpoints that should not have the Authorization header
+      const publicEndpoints = ['login', 'register', 'verifyEmail', 'refresh'];
+
+      if (!publicEndpoints.includes(endpoint as string)) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          headers.set('authorization', `Bearer ${token}`);
+        }
+      }
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
@@ -34,7 +50,7 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
-    register: builder.mutation<AuthResponse, RegisterRequest>({
+    register: builder.mutation<RegisterResponse, RegisterRequest>({
       query: (userData) => ({
         url: 'auth/register',
         method: 'POST',

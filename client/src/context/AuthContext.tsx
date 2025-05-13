@@ -1,17 +1,23 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import axios from 'axios';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { 
+  useGetMeQuery, 
+  useRefreshMutation, 
+  useLoginMutation, 
+  useRegisterMutation 
+} from '../store/api/authApi';
 
 interface User {
   id: string;
   username: string;
   email: string;
+  isEmailVerified?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User | null>;
+  register: (username: string, email: string, password: string) => Promise<{ message: string } | null>;
   logout: () => void;
   loading: boolean;
   error: string | null;
@@ -29,93 +35,90 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation();
+  const [registerMutation, { isLoading: isRegisterLoading }] = useRegisterMutation();
+  const [refresh, { isLoading: isRefreshing }] = useRefreshMutation();
+  const {
+    data: meData,
+    error: getMeError,
+    isLoading: isGetMeLoading,
+    refetch: refetchMe,
+  } = useGetMeQuery(undefined, {
+    skip: !localStorage.getItem('token'),
+  });
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.post(`${API_URL}/api/v1/auth/login`, {
-        email,
-        password,
-      });
-      const { access_token, refresh_token, user } = response.data;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('refresh_token', refresh_token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-      setUser(user);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during login');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const setAuthData = (accessToken: string, refreshToken: string, userData: User) => {
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('refresh_token', refreshToken);
+    setUser(userData);
+  };
 
-  const register = useCallback(async (username: string, email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<User | null> => {
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.post(`${API_URL}/api/v1/auth/register`, {
-        username,
-        email,
-        password,
-      });
-      const { access_token, refresh_token, user } = response.data;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('refresh_token', refresh_token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-      setUser(user);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during registration');
-      throw err;
-    } finally {
-      setLoading(false);
+      const response = await loginMutation({ email, password }).unwrap();
+      setAuthData(response.access_token, response.refresh_token, response.user);
+      return response.user;
+    } catch (err: any) {
+      const errorMessage = err?.data?.message || 'An error occurred during login';
+      setError(errorMessage);
+      console.error('Login error:', err);
+      throw new Error(errorMessage);
     }
-  }, []);
+  }, [loginMutation]);
+
+  const register = useCallback(async (username: string, email: string, password: string): Promise<{ message: string } | null> => {
+    setError(null);
+    try {
+      const response = await registerMutation({ username, email, password }).unwrap();
+      return response;
+    } catch (err: any) {
+      const errorMessage = err?.data?.message || 'An error occurred during registration';
+      setError(errorMessage);
+      console.error('Register error:', err);
+      throw new Error(errorMessage);
+    }
+  }, [registerMutation]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('refresh_token');
-    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   }, []);
 
-  // Check token and load user data on mount, with refresh logic
-  React.useEffect(() => {
-    const loadUser = async () => {
-      let token = localStorage.getItem('token');
-      let refresh_token = localStorage.getItem('refresh_token');
-      if (token) {
-        try {
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const response = await axios.get(`${API_URL}/api/v1/auth/me`);
-          setUser(response.data);
-        } catch (error: any) {
-          if (error.response && error.response.status === 401 && refresh_token) {
-            // Try to refresh token
-            try {
-              const refreshResponse = await axios.post(`${API_URL}/api/v1/auth/refresh`, { refreshToken: refresh_token });
-              const { access_token: newToken } = refreshResponse.data;
-              localStorage.setItem('token', newToken);
-              axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-              // Retry original request
-              const retryResponse = await axios.get(`${API_URL}/api/v1/auth/me`);
-              setUser(retryResponse.data);
-            } catch {
-              logout();
-            }
-          } else {
+  useEffect(() => {
+    if (meData) {
+      setUser(meData);
+    } else if (localStorage.getItem('token')) {
+      refetchMe();
+    }
+  }, [meData, refetchMe]);
+
+  useEffect(() => {
+    const tryRefresh = async () => {
+      if (getMeError && 'status' in getMeError && getMeError.status === 401) {
+        const refresh_token = localStorage.getItem('refresh_token');
+        if (refresh_token) {
+          try {
+            const result = await refresh({ refreshToken: refresh_token }).unwrap();
+            localStorage.setItem('token', result.access_token);
+            await refetchMe();
+          } catch (refreshErr) {
+            console.error('Token refresh failed:', refreshErr);
             logout();
           }
+        } else {
+          logout();
         }
+      } else if (getMeError) {
+        console.error('GetMe error:', getMeError);
+        setError((getMeError as any)?.data?.message || 'Failed to load user profile');
       }
     };
-    loadUser();
-  }, [logout, API_URL]);
+    if(getMeError) tryRefresh();
+  }, [getMeError, refresh, logout, refetchMe]);
 
   const value = {
     user,
@@ -123,8 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     logout,
-    loading,
-    error,
+    loading: isLoginLoading || isRegisterLoading || isGetMeLoading || isRefreshing,
+    error: error,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -104,8 +104,6 @@ export class AuthService {
 
     console.log('user verified', user.id);
 
-    throw new InternalServerErrorException(`Failed to verify email ${user.id}`);
-
     return { message: 'Email verified successfully. You can now log in.' };
   }
 

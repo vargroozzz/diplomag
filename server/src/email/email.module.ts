@@ -18,9 +18,11 @@ import * as mailgunTransport from 'nodemailer-mailgun-transport';
         }
         const options = {
           auth: {
+            username: 'api',
             api_key: apiKey,
             domain: domain,
           },
+          host: 'api.eu.mailgun.net',
         };
         return nodemailer.createTransport(mailgunTransport(options));
       },

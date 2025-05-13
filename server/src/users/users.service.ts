@@ -49,6 +49,18 @@ export class UsersService {
     ).exec();
   }
 
+  async updateEmailVerificationToken(userId: string, token: string, expires: Date): Promise<UserDocument | null> {
+    return await this.userModel.findByIdAndUpdate(
+      userId,
+      {
+        emailVerificationToken: token,
+        emailVerificationExpires: expires,
+        isEmailVerified: false,
+      },
+      { new: true },
+    ).exec();
+  }
+
   async update(id: string, updateUserDto: Partial<User>): Promise<User | null> {
     return await this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })

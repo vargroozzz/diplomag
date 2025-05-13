@@ -107,6 +107,49 @@ export class AuthService {
     return { message: 'Email verified successfully. You can now log in.' };
   }
 
+  async resendVerificationEmail(email: string): Promise<{ message: string }> {
+    const user = await this.usersService.findByEmailWithDocument(email);
+
+    if (!user) {
+      throw new BadRequestException('User with this email does not exist.');
+    }
+
+    if (user.isEmailVerified) {
+      throw new BadRequestException('Email is already verified.');
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date();
+    verificationExpires.setHours(verificationExpires.getHours() + 1); // Token expires in 1 hour
+
+    const updatedUser = await this.usersService.updateEmailVerificationToken(
+      user._id.toString(),
+      verificationToken,
+      verificationExpires,
+    );
+
+    if (!updatedUser) {
+      this.logger.error(`Failed to update verification token for user ${user.email}`);
+      throw new InternalServerErrorException('Could not resend verification email. Please try again later.');
+    }
+
+    try {
+      await this.emailService.sendVerificationEmail(
+        updatedUser.email,
+        updatedUser.username,
+        verificationToken,
+      );
+    } catch (emailError) {
+      this.logger.error(`Failed to send new verification email to ${updatedUser.email}: ${emailError.message}`);
+      // We don't necessarily want to throw an error to the user if the token update was successful
+      // but the email failed to send, as they can try again or contact support.
+      // However, for now, let's indicate a general issue if email sending fails.
+      throw new InternalServerErrorException('Could not resend verification email. Please try again later.');
+    }
+
+    return { message: 'A new verification email has been sent. Please check your inbox.' };
+  }
+
   async getMe(userPayload: JwtUserPayload): Promise<MeUserResponse> {
     const dbUser = await this.usersService.findOne(userPayload.userId) as UserWithId | null;
     if (!dbUser) {

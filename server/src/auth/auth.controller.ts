@@ -48,6 +48,16 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
+  @Post('resend-verification-email')
+  @Version('1')
+  @ApiOperation({ summary: 'Resend email verification link' })
+  @ApiBody({ schema: { properties: { email: { type: 'string', format: 'email' } } } })
+  @ApiResponse({ status: 201, description: 'Verification email sent successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid request (e.g., email already verified, user not found).' })
+  async resendVerificationEmail(@Body('email') email: string) {
+    return this.authService.resendVerificationEmail(email);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @Version('1')

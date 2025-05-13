@@ -16,7 +16,7 @@ rebuild:
 
 # LaTeX Thesis Commands
 THESIS_DIR = thesis
-THESIS_MAIN_FILE = thesis_main
+THESIS_MAIN_FILE = Дипломна-Робота
 PDF_FILE = $(THESIS_DIR)/$(THESIS_MAIN_FILE).pdf
 
 .PHONY: thesis_compile thesis_clean thesis_view
@@ -42,7 +42,7 @@ view_thesis: thesis_view
 
 # Practice Report Commands
 PRACTICE_REPORT_DIR = thesis/practice_report
-PRACTICE_REPORT_MAIN_FILE = practice_report_main
+PRACTICE_REPORT_MAIN_FILE = Науково-Дослідна-Практика-Звіт
 PRACTICE_PDF_FILE = $(PRACTICE_REPORT_DIR)/$(PRACTICE_REPORT_MAIN_FILE).pdf
 
 .PHONY: practice_report_compile practice_report_clean practice_report_view

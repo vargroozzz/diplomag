@@ -3,7 +3,7 @@ import { EmailService } from './email.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 // Use require for nodemailer-mailgun-transport to avoid type errors
-const mailgunTransport = require('nodemailer-mailgun-transport');
+import mailgunTransport from 'nodemailer-mailgun-transport';
 
 @Module({
   imports: [ConfigModule],
@@ -11,10 +11,15 @@ const mailgunTransport = require('nodemailer-mailgun-transport');
     {
       provide: 'MAILGUN_TRANSPORTER',
       useFactory: (configService: ConfigService) => {
+        const apiKey = configService.get<string>('MAILGUN_API_KEY');
+        const domain = configService.get<string>('MAILGUN_DOMAIN');
+        if (!apiKey || !domain) {
+          throw new Error('MAILGUN_API_KEY and MAILGUN_DOMAIN must be set');
+        }
         const options = {
           auth: {
-            api_key: configService.get<string>('MAILGUN_API_KEY'),
-            domain: configService.get<string>('MAILGUN_DOMAIN'),
+            api_key: apiKey,
+            domain: domain,
           },
         };
         return nodemailer.createTransport(mailgunTransport(options));

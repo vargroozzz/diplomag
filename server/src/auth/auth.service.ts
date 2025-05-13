@@ -94,11 +94,15 @@ export class AuthService {
   async verifyEmail(token: string): Promise<{ message: string }> {
     const user = await this.usersService.findByEmailVerificationToken(token);
 
+    this.logger.log('user', user);
+
     if (!user) {
       throw new BadRequestException('Invalid or expired verification token.');
     }
 
     await this.usersService.verifyUserEmail(user._id.toString());
+
+    this.logger.log('user verified', user._id.toString());
 
     return { message: 'Email verified successfully. You can now log in.' };
   }

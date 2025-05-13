@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, useMapEvents, Polyline } from 'react-leaflet';
 import L, { LatLngExpression, LatLngTuple, LatLng } from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
@@ -31,6 +31,46 @@ const MapPage: React.FC = () => {
   const { t } = useTranslation();
   const initialPosition: LatLngExpression = [48.3794, 31.1656]; // Approx center of Ukraine
   const initialZoom = 6;
+
+  const TREATMENT_SOON_DAYS = 7;
+  const FIELD_COLOR_DEFAULT = 'blue';
+  const FIELD_COLOR_TREATMENT_TODAY = 'red';
+  const FIELD_COLOR_TREATMENT_SOON = 'orange';
+
+  // Date utility functions
+  const isSameDay = (date1: Date, date2: Date): boolean => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
+  const getFieldTreatmentStatus = useMemo(() => (treatmentDates?: string[]) => {
+    if (!treatmentDates || treatmentDates.length === 0) {
+      return { color: FIELD_COLOR_DEFAULT, status: 'normal' };
+    }
+    const today = new Date();
+    let isSoon = false;
+
+    for (const dateString of treatmentDates) {
+      const treatmentDate = new Date(dateString);
+      if (isSameDay(treatmentDate, today)) {
+        return { color: FIELD_COLOR_TREATMENT_TODAY, status: 'today' }; // Treatment today
+      }
+      const diffTime = treatmentDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays >= 0 && diffDays <= TREATMENT_SOON_DAYS) {
+        isSoon = true; // Treatment soon, continue checking if any is today
+      }
+    }
+
+    if (isSoon) {
+      return { color: FIELD_COLOR_TREATMENT_SOON, status: 'soon' }; // Treatment soon
+    }
+
+    return { color: FIELD_COLOR_DEFAULT, status: 'normal' }; // No imminent treatment
+  }, []);
 
   // Define custom hive icon using MUI HiveIcon
   const hiveLeafletIcon = L.divIcon({
@@ -241,12 +281,29 @@ const MapPage: React.FC = () => {
             // Leaflet polygons expect [lat, lng]
             // Backend now returns coordinates as number[][][] ([[[lng, lat]]])
             const polygonPositions = field.geometry.coordinates[0].map(coords => [coords[1], coords[0]]) as LatLngTuple[];
+            const treatmentStatus = getFieldTreatmentStatus(field.treatmentDates);
+            
             return (
-              <Polygon key={field._id} pathOptions={{ color: 'blue' }} positions={polygonPositions}>
+              <Polygon 
+                key={field._id} 
+                pathOptions={{ color: treatmentStatus.color }} 
+                positions={polygonPositions}
+              >
                 <Popup>
                   <b>{field.name}</b><br />
                   Crop: {field.cropType}<br />
                   Blooms: {new Date(field.bloomingPeriodStart).toLocaleDateString()} - {new Date(field.bloomingPeriodEnd).toLocaleDateString()}
+                  {field.treatmentDates && field.treatmentDates.length > 0 && (
+                    <>
+                      <br />
+                      Treatment Dates:
+                      <ul>
+                        {field.treatmentDates.map((dateString, index) => (
+                          <li key={index}>{new Date(dateString).toLocaleDateString()}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
                 </Popup>
               </Polygon>
             );

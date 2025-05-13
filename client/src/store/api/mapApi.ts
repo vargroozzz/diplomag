@@ -74,13 +74,11 @@ interface AddFieldRequest {
   geometry: GeoJsonPolygonDtoPayload; // USE THIS FOR SENDING DATA
 }
 
-// UpdateFieldRequest also uses DTO Payload structure for geometry
-interface UpdateFieldRequest extends Partial<Omit<AddFieldRequest, 'name' | 'cropType' | 'bloomingPeriodStart' | 'bloomingPeriodEnd'> > { // Omit fields not typically in patch for geometry
-  _id: string;
-  geometry?: GeoJsonPolygonDtoPayload; // USE THIS FOR SENDING DATA (if geometry is updatable)
-  name?: string; // Allow name update
-  cropType?: string; // Allow cropType update
-  // Add other updatable fields as needed
+// UpdateFieldRequest: All fields from AddFieldRequest are optional, except _id
+// Geometry is also optional, if we decide to allow its update separately.
+interface UpdateFieldRequest extends Partial<Omit<AddFieldRequest, 'geometry'>> {
+  _id: string; 
+  geometry?: GeoJsonPolygonDtoPayload; // Keep geometry optional for potential future updates
 }
 
 const apiUrl = import.meta.env.VITE_API_URL;

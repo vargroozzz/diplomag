@@ -2,13 +2,16 @@ import React, { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, useMapEvents, Polyline } from 'react-leaflet';
 import L, { LatLngExpression, LatLngTuple, LatLng } from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
-import { Container, Typography, Box, CircularProgress, Button } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Button, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import HiveIcon from '@mui/icons-material/Hive';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { useTranslation } from 'react-i18next';
-import { useGetHivesQuery, useGetFieldsQuery, useAddHiveMutation, useAddFieldMutation, Hive, Field } from '../store/api/mapApi';
+import { useGetHivesQuery, useGetFieldsQuery, useAddHiveMutation, useAddFieldMutation, useDeleteHiveMutation, useUpdateFieldMutation, Hive, Field } from '../store/api/mapApi';
 import AddHiveDialog from '../components/map/AddHiveDialog';
 import AddFieldDialog, { FieldFormData } from '../components/map/AddFieldDialog';
+import EditFieldDialog, { EditFieldFormData } from '../components/map/EditFieldDialog';
 
 // Component to handle map clicks for adding new items
 interface MapClickHandlerProps {
@@ -94,6 +97,16 @@ const MapPage: React.FC = () => {
   const { data: fields, isLoading: isLoadingFields, error: errorFields } = useGetFieldsQuery();
   const [addHive, { isLoading: isAddingHive }] = useAddHiveMutation();
   const [addField, { isLoading: isAddingField }] = useAddFieldMutation();
+  const [deleteHive, { isLoading: isDeletingHive }] = useDeleteHiveMutation();
+  const [updateField, { isLoading: isUpdatingField }] = useUpdateFieldMutation();
+
+  // State for delete hive confirmation
+  const [isDeleteHiveConfirmOpen, setIsDeleteHiveConfirmOpen] = useState(false);
+  const [hiveToDeleteId, setHiveToDeleteId] = useState<string | null>(null);
+
+  // State for edit field dialog
+  const [isEditFieldDialogOpen, setIsEditFieldDialogOpen] = useState(false);
+  const [fieldToEdit, setFieldToEdit] = useState<Field | null>(null);
 
   const handleMapClick = (latLng: LatLng) => {
     if (isAddHiveMode) {
@@ -164,6 +177,51 @@ const MapPage: React.FC = () => {
     } catch (err) {
       // Optionally show error message
       console.error('Failed to add field:', err);
+    }
+  };
+
+  const handleOpenDeleteHiveConfirm = (hiveId: string) => {
+    setHiveToDeleteId(hiveId);
+    setIsDeleteHiveConfirmOpen(true);
+  };
+
+  const handleCloseDeleteHiveConfirm = () => {
+    setIsDeleteHiveConfirmOpen(false);
+    setHiveToDeleteId(null);
+  };
+
+  const handleConfirmDeleteHive = async () => {
+    if (!hiveToDeleteId) return;
+    try {
+      await deleteHive(hiveToDeleteId).unwrap();
+      // Optionally show success message (e.g., Snackbar)
+      console.log(`Hive ${hiveToDeleteId} deleted successfully`);
+    } catch (err) {
+      // Optionally show error message (e.g., Snackbar)
+      console.error('Failed to delete hive:', err);
+    }
+    handleCloseDeleteHiveConfirm();
+  };
+
+  const handleOpenEditFieldDialog = (field: Field) => {
+    setFieldToEdit(field);
+    setIsEditFieldDialogOpen(true);
+  };
+
+  const handleCloseEditFieldDialog = () => {
+    setIsEditFieldDialogOpen(false);
+    setFieldToEdit(null);
+  };
+
+  const handleEditFieldSubmit = async (formData: EditFieldFormData) => {
+    if (!fieldToEdit) return;
+    try {
+      await updateField({ _id: fieldToEdit._id, ...formData }).unwrap();
+      console.log(`Field ${fieldToEdit._id} updated successfully`);
+      handleCloseEditFieldDialog();
+    } catch (err) {
+      console.error('Failed to update field:', err);
+      // Potentially show error in dialog or via snackbar
     }
   };
 
@@ -271,15 +329,22 @@ const MapPage: React.FC = () => {
               icon={hiveLeafletIcon} // Use the custom hive icon
             >
               <Popup>
-                <b>{hive.name}</b><br />
-                {hive.notes}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '150px' }}>
+                  <Typography variant="subtitle1" component="b" sx={{ mr: 1 }}>{hive.name}</Typography>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleOpenDeleteHiveConfirm(hive._id)} 
+                    aria-label={t('map.hivePopup.deleteAria', `Delete hive ${hive.name}`)}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+                {hive.notes && <Typography variant="body2" sx={{ mt: 0.5 }}>{hive.notes}</Typography>}
               </Popup>
             </Marker>
           ))}
 
           {fields?.map((field: Field) => {
-            // Leaflet polygons expect [lat, lng]
-            // Backend now returns coordinates as number[][][] ([[[lng, lat]]])
             const polygonPositions = field.geometry.coordinates[0].map(coords => [coords[1], coords[0]]) as LatLngTuple[];
             const treatmentStatus = getFieldTreatmentStatus(field.treatmentDates);
             
@@ -290,19 +355,27 @@ const MapPage: React.FC = () => {
                 positions={polygonPositions}
               >
                 <Popup>
-                  <b>{field.name}</b><br />
-                  Crop: {field.cropType}<br />
-                  Blooms: {new Date(field.bloomingPeriodStart).toLocaleDateString()} - {new Date(field.bloomingPeriodEnd).toLocaleDateString()}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '250px' }}>
+                    <Typography variant="subtitle1" component="b" sx={{ mr: 1 }}>{field.name}</Typography>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleOpenEditFieldDialog(field)} 
+                      aria-label={t('map.fieldPopup.editAria', `Edit field ${field.name}`)}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>Crop: {field.cropType}</Typography>
+                  <Typography variant="body2">Blooms: {new Date(field.bloomingPeriodStart).toLocaleDateString()} - {new Date(field.bloomingPeriodEnd).toLocaleDateString()}</Typography>
                   {field.treatmentDates && field.treatmentDates.length > 0 && (
-                    <>
-                      <br />
-                      Treatment Dates:
-                      <ul>
+                    <Box mt={0.5}>
+                      <Typography variant="body2">Treatment Dates:</Typography>
+                      <ul style={{ paddingLeft: '20px', margin: '4px 0' }}>
                         {field.treatmentDates.map((dateString, index) => (
-                          <li key={index}>{new Date(dateString).toLocaleDateString()}</li>
+                          <li key={index}><Typography variant="caption">{new Date(dateString).toLocaleDateString()}</Typography></li>
                         ))}
                       </ul>
-                    </>
+                    </Box>
                   )}
                 </Popup>
               </Polygon>
@@ -325,6 +398,37 @@ const MapPage: React.FC = () => {
          onSubmit={handleAddFieldSubmit}
          isLoading={isAddingField}
       />
+
+      <EditFieldDialog 
+        open={isEditFieldDialogOpen}
+        onClose={handleCloseEditFieldDialog}
+        onSubmit={handleEditFieldSubmit}
+        isLoading={isUpdatingField}
+        initialData={fieldToEdit}
+      />
+
+      {/* Delete Hive Confirmation Dialog */}
+      <Dialog
+        open={isDeleteHiveConfirmOpen}
+        onClose={handleCloseDeleteHiveConfirm}
+        aria-labelledby="delete-hive-dialog-title"
+        aria-describedby="delete-hive-dialog-description"
+      >
+        <DialogTitle id="delete-hive-dialog-title">
+          {t('map.deleteHiveDialog.title', 'Delete Hive?')}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-hive-dialog-description">
+            {t('map.deleteHiveDialog.message', 'Are you sure you want to delete this hive? This action cannot be undone.')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteHiveConfirm} disabled={isDeletingHive}>{t('common.cancel', 'Cancel')}</Button>
+          <Button onClick={handleConfirmDeleteHive} color="error" variant="contained" disabled={isDeletingHive} autoFocus>
+            {isDeletingHive ? <CircularProgress size={24} /> : t('common.delete', 'Delete')}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
     </Container>
   );

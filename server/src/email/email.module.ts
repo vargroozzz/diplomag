@@ -3,7 +3,7 @@ import { EmailService } from './email.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 // Use require for nodemailer-mailgun-transport to avoid type errors
-import mailgunTransport from 'nodemailer-mailgun-transport';
+import * as mailgunTransport from 'nodemailer-mailgun-transport';
 
 @Module({
   imports: [ConfigModule],

@@ -25,6 +25,7 @@ services:
       - MONGODB_URI=mongodb://mongodb:27017/beekeepers
       - JWT_SECRET=rxRkSCngw2mOZUeUWAT1d4KMNKBSRpv3
       - NODE_ENV=production
+      - FRONTEND_URL=http://frontend:3000
     networks:
       - beekeepers-network
 

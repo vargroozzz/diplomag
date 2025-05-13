@@ -25,10 +25,12 @@ interface AuthResponse {
   };
 }
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: '/api/v1',
+    baseUrl: `${apiUrl}/api/v1`,
     prepareHeaders: (headers, { getState: _getState, endpoint }) => {
       // List of endpoints that should not have the Authorization header
       const publicEndpoints = ['login', 'register', 'verifyEmail', 'refresh'];

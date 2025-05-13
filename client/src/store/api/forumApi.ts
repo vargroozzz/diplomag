@@ -19,6 +19,7 @@ interface ForumPost {
     createdAt: string;
   }>;
   createdAt: string;
+  updatedAt?: string;
 }
 
 interface CreatePostRequest {
@@ -30,10 +31,12 @@ interface CreateCommentRequest {
   content: string;
 }
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const forumApi = createApi({
   reducerPath: 'forumApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: '/api/v1',
+    baseUrl: `${apiUrl}/api/v1`,
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {

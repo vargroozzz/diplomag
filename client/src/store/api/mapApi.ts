@@ -8,31 +8,32 @@ interface GeoJsonPoint {
   coordinates: [number, number]; // [longitude, latitude]
 }
 
+interface GeoJsonPolygon {
+  type: 'Polygon';
+  coordinates: Array<Array<[number, number]>>; // Array of rings, first is exterior
+}
+
 export interface Hive {
   _id: string;
   name: string;
   notes?: string;
-  location: GeoJsonPoint; // Point remains array [lng, lat] as per schema
-  user: string; // User ID
+  location: GeoJsonPoint;
+  user: string;
+  insights?: string[]; 
   createdAt: string;
   updatedAt: string;
-}
-
-// Revert GeoJsonPolygon to match the backend schema (standard GeoJSON array)
-interface GeoJsonPolygon {
-  type: 'Polygon';
-  coordinates: number[][][]; // Array of LinearRings, each Ring is array of [lng, lat] points
 }
 
 export interface Field {
   _id: string;
   name: string;
   cropType: string;
-  bloomingPeriodStart: string; // Date string
-  bloomingPeriodEnd: string;   // Date string
-  treatmentDates?: string[];  // Array of date strings
-  geometry: GeoJsonPolygon; // Use standard GeoJsonPolygon type
-  user: string; // User ID
+  bloomingPeriodStart: string;
+  bloomingPeriodEnd: string;  
+  treatmentDates?: string[];
+  geometry: GeoJsonPolygon;
+  user: string;
+  insights?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -41,7 +42,7 @@ export interface Field {
 interface AddHiveRequest {
   name: string;
   notes?: string;
-  location: GeoJsonPoint; 
+  location: GeoJsonPoint;
 }
 
 interface UpdateHiveRequest extends Partial<AddHiveRequest> {
@@ -52,22 +53,22 @@ interface AddFieldRequest {
   name: string;
   cropType: string;
   bloomingPeriodStart: string;
-  bloomingPeriodEnd: string;
+  bloomingPeriodEnd: string;  
   treatmentDates?: string[];
-  // Geometry for sending data still uses the DTO structure
-  geometry: { type: 'Polygon'; coordinates: { ring: {lng: number, lat: number}[] }[] }; 
+  geometry: GeoJsonPolygon;
 }
 
 interface UpdateFieldRequest extends Partial<AddFieldRequest> {
   _id: string;
-  // Geometry for sending update data also uses DTO structure
-  geometry?: { type: 'Polygon'; coordinates: { ring: {lng: number, lat: number}[] }[] }; 
+  geometry?: GeoJsonPolygon;
 }
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const mapApi = createApi({
   reducerPath: 'mapApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/v1',
+    baseUrl: `${apiUrl}/api/v1`,
     prepareHeaders: (headers, { getState: _getState }) => {
       // Consider using a selector to get the token from your auth state if managed by Redux
       const token = localStorage.getItem('token'); 

@@ -11,10 +11,12 @@ interface Resource {
   updatedAt: string;
 }
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const knowledgeBaseApi = createApi({
   reducerPath: 'knowledgeBaseApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: '/api/v1',
+    baseUrl: `${apiUrl}/api/v1`,
   }),
   tagTypes: ['Resource'],
   endpoints: (builder) => ({

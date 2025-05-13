@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, useMapEvents, Polyline } from 'react-leaflet';
 import L, { LatLngExpression, LatLngTuple, LatLng } from 'leaflet';
+import ReactDOMServer from 'react-dom/server';
 import { Container, Typography, Box, CircularProgress, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import HiveIcon from '@mui/icons-material/Hive';
 import { useTranslation } from 'react-i18next';
 import { useGetHivesQuery, useGetFieldsQuery, useAddHiveMutation, useAddFieldMutation, Hive, Field } from '../store/api/mapApi';
 import AddHiveDialog from '../components/map/AddHiveDialog';
@@ -29,6 +31,15 @@ const MapPage: React.FC = () => {
   const { t } = useTranslation();
   const initialPosition: LatLngExpression = [48.3794, 31.1656]; // Approx center of Ukraine
   const initialZoom = 6;
+
+  // Define custom hive icon using MUI HiveIcon
+  const hiveLeafletIcon = L.divIcon({
+    html: ReactDOMServer.renderToString(<HiveIcon sx={{ fontSize: 30, color: '#FFA500' }} />),
+    className: 'leaflet-mui-icon', // Add a class for potential custom styling
+    iconSize: [30, 30],
+    iconAnchor: [15, 30], // Adjust anchor to point correctly
+    popupAnchor: [0, -30] // Adjust popup anchor relative to icon
+  });
 
   const [isAddHiveMode, setIsAddHiveMode] = useState(false);
   const [newHiveLocation, setNewHiveLocation] = useState<LatLng | null>(null);
@@ -214,7 +225,11 @@ const MapPage: React.FC = () => {
           )}
           
           {hives?.map((hive: Hive) => (
-            <Marker key={hive._id} position={[hive.location.coordinates[1], hive.location.coordinates[0]] as LatLngTuple}>
+            <Marker 
+              key={hive._id} 
+              position={[hive.location.coordinates[1], hive.location.coordinates[0]] as LatLngTuple}
+              icon={hiveLeafletIcon} // Use the custom hive icon
+            >
               <Popup>
                 <b>{hive.name}</b><br />
                 {hive.notes}

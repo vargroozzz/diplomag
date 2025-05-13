@@ -101,6 +101,7 @@ const MapPage: React.FC = () => {
     const pointObjects = [...newPolygonPoints, newPolygonPoints[0]].map(p => ({ lng: p.lng, lat: p.lat })); 
     // Structure according to DTO: [{ ring: [points...] }]
     const coordinates = [{ ring: pointObjects }]; 
+
     try {
       await addField({
         ...formData,

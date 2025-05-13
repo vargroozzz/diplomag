@@ -21,17 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useGetUserProfileQuery, useUpdateUserProfileMutation } from '../store/api/usersApi';
-
-interface UserProfile {
-  _id: string;
-  username: string;
-  email: string;
-  bio?: string;
-  location?: string;
-  expertise?: string[];
-  isAdmin?: boolean;
-  createdAt: string;
-}
+import { UserProfile } from '../types';
 
 interface EditDialogProps {
   open: boolean;
@@ -44,24 +34,33 @@ interface EditDialogProps {
 const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, onSave, field, value }) => {
   const [editValue, setEditValue] = useState(value);
 
+  React.useEffect(() => {
+    setEditValue(value);
+  }, [value]);
+
   const handleSave = () => {
-    onSave({ [field]: editValue });
+    if (field === 'expertise' && typeof editValue === 'string') {
+      onSave({ [field]: editValue.split(',').map(s => s.trim()).filter(s => s) });
+    } else {
+      onSave({ [field]: editValue });
+    }
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit {field}</DialogTitle>
+      <DialogTitle>Edit {field as string}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
-          label={field}
+          label={field as string}
           fullWidth
-          value={editValue}
+          value={Array.isArray(editValue) ? editValue.join(', ') : editValue}
           onChange={(e) => setEditValue(e.target.value)}
           multiline={field === 'bio'}
           rows={field === 'bio' ? 4 : 1}
+          placeholder={field === 'expertise' ? 'Enter skills separated by commas' : ''}
         />
       </DialogContent>
       <DialogActions>
@@ -78,8 +77,8 @@ const Profile: React.FC = () => {
   const { data: profile, isLoading, error } = useGetUserProfileQuery(user?.id ?? '', { skip: !user?.id });
   const [updateProfile] = useUpdateUserProfileMutation();
 
-  const handleEditClick = (field: keyof UserProfile) => {
-    setEditDialog({ open: true, field });
+  const handleEditClick = (fieldToEdit: keyof UserProfile) => {
+    setEditDialog({ open: true, field: fieldToEdit });
   };
 
   const handleSave = async (data: Partial<UserProfile>) => {
@@ -99,12 +98,22 @@ const Profile: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error || !profile) {
     return (
       <Container>
         <Typography color="error">Failed to load profile data</Typography>
       </Container>
     );
+  }
+
+  let dialogValue: string | string[] = '';
+  if (profile && editDialog.field) {
+    const fieldValue = profile[editDialog.field as keyof UserProfile];
+    if (editDialog.field === 'expertise') {
+      dialogValue = Array.isArray(fieldValue) ? fieldValue : [];
+    } else {
+      dialogValue = typeof fieldValue === 'string' ? fieldValue : '';
+    }
   }
 
   return (
@@ -171,13 +180,15 @@ const Profile: React.FC = () => {
         </Box>
       </Box>
 
-      <EditDialog
-        open={editDialog.open}
-        onClose={() => setEditDialog({ ...editDialog, open: false })}
-        onSave={handleSave}
-        field={editDialog.field}
-        value={profile?.[editDialog.field] || ''}
-      />
+      {editDialog.open && (
+        <EditDialog
+          open={editDialog.open}
+          onClose={() => setEditDialog({ ...editDialog, open: false })}
+          onSave={handleSave}
+          field={editDialog.field}
+          value={dialogValue}
+        />
+      )}
     </Container>
   );
 };

@@ -1,17 +1,31 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-// Define TypeScript interfaces for Hive and Field based on backend schemas
-// Ensure these match the structure returned by your backend, especially GeoJSON parts
-
+// For Hives - standard GeoJSON Point
 interface GeoJsonPoint {
   type: 'Point';
   coordinates: [number, number]; // [longitude, latitude]
 }
 
-interface GeoJsonPolygon {
-  type: 'Polygon';
-  coordinates: Array<Array<[number, number]>>; // Array of rings, first is exterior
+// --- For Field DTO Payloads (matching CreateFieldDto.ts) ---
+interface PointObjectDto {
+  lng: number;
+  lat: number;
 }
+interface LinearRingObjectDto {
+  ring: PointObjectDto[];
+}
+interface GeoJsonPolygonDtoPayload { 
+  type: 'Polygon';
+  coordinates: LinearRingObjectDto[]; 
+}
+// --- End DTO Payload types ---
+
+// --- For Field API Responses (standard GeoJSON from DB) ---
+interface GeoJsonPolygonApiResponse {
+  type: 'Polygon';
+  coordinates: Array<Array<[number, number]>>; // Standard GeoJSON: [[[lng, lat], ...]]
+}
+// --- End API Response types ---
 
 export interface Hive {
   _id: string;
@@ -24,6 +38,7 @@ export interface Hive {
   updatedAt: string;
 }
 
+// Field interface uses standard GeoJSON for geometry from API responses
 export interface Field {
   _id: string;
   name: string;
@@ -31,7 +46,7 @@ export interface Field {
   bloomingPeriodStart: string;
   bloomingPeriodEnd: string;  
   treatmentDates?: string[];
-  geometry: GeoJsonPolygon;
+  geometry: GeoJsonPolygonApiResponse; // USE THIS FOR WHAT'S RECEIVED FROM GET /fields
   user: string;
   insights?: string[];
   createdAt: string;
@@ -49,18 +64,23 @@ interface UpdateHiveRequest extends Partial<AddHiveRequest> {
   _id: string;
 }
 
+// AddFieldRequest uses DTO Payload structure for geometry
 interface AddFieldRequest {
   name: string;
   cropType: string;
   bloomingPeriodStart: string;
   bloomingPeriodEnd: string;  
   treatmentDates?: string[];
-  geometry: GeoJsonPolygon;
+  geometry: GeoJsonPolygonDtoPayload; // USE THIS FOR SENDING DATA
 }
 
-interface UpdateFieldRequest extends Partial<AddFieldRequest> {
+// UpdateFieldRequest also uses DTO Payload structure for geometry
+interface UpdateFieldRequest extends Partial<Omit<AddFieldRequest, 'name' | 'cropType' | 'bloomingPeriodStart' | 'bloomingPeriodEnd'> > { // Omit fields not typically in patch for geometry
   _id: string;
-  geometry?: GeoJsonPolygon;
+  geometry?: GeoJsonPolygonDtoPayload; // USE THIS FOR SENDING DATA (if geometry is updatable)
+  name?: string; // Allow name update
+  cropType?: string; // Allow cropType update
+  // Add other updatable fields as needed
 }
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -158,4 +178,4 @@ export const {
   useAddFieldMutation,
   useUpdateFieldMutation,
   useDeleteFieldMutation,
-} = mapApi; 
+} = mapApi;

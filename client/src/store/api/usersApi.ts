@@ -1,16 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
-// Define your UserProfile type if not already defined, or import it
-// This is a placeholder, adjust to your actual UserProfile structure
-interface UserProfile {
-  id: string;
-  username: string;
-  email: string;
-  bio?: string;
-  location?: string;
-  expertise?: string[];
-  // ... other fields
-}
+import { UserProfile } from '../../types';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 

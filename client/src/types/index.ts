@@ -53,11 +53,16 @@ export interface Article {
 }
 
 export interface UserProfile {
+  id: string;
   username: string;
   email: string;
-  bio: string;
-  location: string;
-  expertise: string[];
+  bio?: string;
+  location?: string;
+  expertise?: string[];
+  isEmailVerified?: boolean;
+  isAdmin?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UserSettings {

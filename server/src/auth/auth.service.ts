@@ -100,9 +100,9 @@ export class AuthService {
       throw new BadRequestException('Invalid or expired verification token.');
     }
 
-    await this.usersService.verifyUserEmail(user._id.toString());
+    await this.usersService.verifyUserEmail(user.id);
 
-    console.log('user verified', user._id.toString());
+    console.log('user verified', user.id);
 
     return { message: 'Email verified successfully. You can now log in.' };
   }

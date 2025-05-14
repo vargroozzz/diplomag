@@ -17,28 +17,22 @@
 \input{title_page.tex} % Include the title page content
 
 \cleardoublepage
-\pagenumbering{roman} % Roman numerals for front matter
 
 % --- Abstract (Ukrainian) ---
 \input{abstract_uk.tex}
 \cleardoublepage
+% Remove roman numbering for front matter
+% \pagenumbering{roman} 
 
-% --- Abstract (English) ---
-\input{abstract_en.tex}
-\cleardoublepage
+\pagenumbering{arabic} % Start Arabic numbering for the entire document after title page
+\setcounter{page}{2}    % Ensure page numbering starts at 1 (or 2 if title page is considered 1)
+                        % Depending on class, title page might not be numbered or be page 0 implicitly.
+                        % If title page should be page 1, this setcounter might need adjustment or 
+                        % to be placed carefully after titlepage processing by the class.
+                        % For now, aiming for content AFTER title page to start at 1.
 
 % --- Table of Contents ---
 \tableofcontents
-\cleardoublepage
-
-% --- List of Figures (optional, if you have figures) ---
-\listoffigures
-\addcontentsline{toc}{chapter}{\listfigurename}
-\cleardoublepage
-
-% --- List of Tables (optional, if you have tables) ---
-\listoftables
-\addcontentsline{toc}{chapter}{\listtablename}
 \cleardoublepage
 
 % --- Introduction (Input before main content) ---
@@ -46,7 +40,7 @@
 \cleardoublepage
 
 % --- Main Content (Chapters) ---
-\pagenumbering{arabic} % Arabic numerals for main content
+% \pagenumbering{arabic} % This is now moved up
 \input{chapter1.tex}   % Analysis of the Subject Area
 \input{chapter2.tex}   % System Design
 \input{chapter3.tex}   % Implementation

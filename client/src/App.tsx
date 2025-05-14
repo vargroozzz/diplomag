@@ -18,6 +18,7 @@ import Home from './pages/Home';
 import MapPage from './pages/MapPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               <Route path="events" element={<Events />} />
               <Route path="profile" element={<Profile />} />
               <Route path="map" element={<MapPage />} />
+              <Route path="admin" element={<AdminPage />} />
             </Route>
           </Routes>
         </ThemeProvider>

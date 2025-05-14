@@ -26,6 +26,7 @@ import {
   Login as LoginIcon,
   HowToReg as RegisterIcon,
   Map as MapIcon,
+  AdminPanelSettings as AdminIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -61,14 +62,14 @@ const Layout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user: currentUser } = useAuth();
   const { t, i18n } = useTranslation();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const menuItems = [
+  const baseMenuItems = [
     { text: t('menu.home'), icon: <HomeIcon />, path: '/' },
     { text: t('menu.map'), icon: <MapIcon />, path: '/map', protected: true },
     { text: t('menu.forums'), icon: <ForumIcon />, path: '/forums', protected: true },
@@ -76,6 +77,13 @@ const Layout = () => {
     { text: t('menu.events'), icon: <EventIcon />, path: '/events', protected: true },
     { text: t('menu.profile'), icon: <PersonIcon />, path: '/profile', protected: true },
   ];
+
+  const menuItems = currentUser?.isAdmin 
+    ? [
+        ...baseMenuItems,
+        { text: t('menu.admin', 'Admin Panel'), icon: <AdminIcon />, path: '/admin', protected: true }
+      ]
+    : baseMenuItems;
 
   const drawer = (
     <div>

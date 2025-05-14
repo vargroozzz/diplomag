@@ -38,6 +38,7 @@ jobs:
           echo "Verifying Docker connection to remote host..."
           docker version
           docker context ls
+
       - name: Run Deployment
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}

@@ -103,3 +103,7 @@ lint_ci:
 	@echo "Linting server code for CI..."
 	cd server && npm run lint -- --max-warnings 0
 	@echo "Linting for CI complete." 
+
+deploy:
+	docker compose -f docker-compose-deploy.yaml up -d --build
+

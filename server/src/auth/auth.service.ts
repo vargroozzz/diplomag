@@ -167,7 +167,7 @@ export class AuthService {
         username: dbUser.username,
         bio: dbUser.bio,
         location: dbUser.location,
-        expertise: dbUser.expertise,
+        expertise: dbUser.expertise ?? [],
         isEmailVerified: dbUser.isEmailVerified,
         isAdmin: dbUser.isAdmin,
     };

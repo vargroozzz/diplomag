@@ -15,19 +15,40 @@ export const usersApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User'],
+  tagTypes: ['User', 'AllUsersAdmin'],
   endpoints: (builder) => ({
     getUserProfile: builder.query<UserProfile, string>({
-      query: (userId) => `users/${userId}`,
+      query: (userId) => `users/profile/${userId}`,
       providesTags: (_result, _error, userId) => [{ type: 'User', id: userId }],
     }),
     updateUserProfile: builder.mutation<UserProfile, { userId: string; [key: string]: any }>({
       query: ({ userId, ...body }) => ({
-        url: `users/${userId}`,
+        url: `users/profile/${userId}`,
         method: 'PATCH',
         body,
       }),
       invalidatesTags: (_result, _error, { userId }) => [{ type: 'User', id: userId }],
+    }),
+    getAllUsersAdmin: builder.query<UserProfile[], void>({
+      query: () => 'users/admin/all',
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'User' as const, id })),
+              { type: 'AllUsersAdmin' as const, id: 'LIST' },
+            ]
+          : [{ type: 'AllUsersAdmin' as const, id: 'LIST' }],
+    }),
+    updateUserAdminStatus: builder.mutation<UserProfile, { userId: string; isAdmin: boolean }>({
+      query: ({ userId, ...body }) => ({
+        url: `users/admin/${userId}/set-admin-status`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: 'AllUsersAdmin', id: 'LIST' }, 
+        { type: 'User', id: userId }
+      ],
     }),
   }),
 });
@@ -35,4 +56,6 @@ export const usersApi = createApi({
 export const { 
   useGetUserProfileQuery,
   useUpdateUserProfileMutation,
+  useGetAllUsersAdminQuery,
+  useUpdateUserAdminStatusMutation,
 } = usersApi; 

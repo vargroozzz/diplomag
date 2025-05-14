@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
@@ -16,6 +16,22 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return await this.userModel.find().lean().exec();
+  }
+
+  async findAllAdmin(): Promise<UserDocument[]> {
+    return await this.userModel.find().exec();
+  }
+
+  async updateUserAdminStatus(userIdToUpdate: string, isAdmin: boolean): Promise<UserDocument> {
+    const user = await this.userModel.findByIdAndUpdate(
+      userIdToUpdate,
+      { $set: { isAdmin: isAdmin } },
+      { new: true },
+    ).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID "${userIdToUpdate}" not found.`);
+    }
+    return user;
   }
 
   async findOne(id: string): Promise<User | null> {

@@ -11,6 +11,7 @@ interface User {
   username: string;
   email: string;
   isEmailVerified?: boolean;
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {

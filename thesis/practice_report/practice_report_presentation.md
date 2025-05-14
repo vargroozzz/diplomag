@@ -88,7 +88,7 @@ date: "Київ – 2025"
 
 # Сторінка Входу (Скріншот)
 
-![Сторінка входу до системи](images/Знімок%20екрана%202025-05-14%20о%2015.22.34.png "width=900px") 
+![Сторінка входу до системи](images/login_page.png "width=900px") 
 <!-- You can adjust the width here if needed, or remove it for Marp's default full-width image on a blank slide -->
 
 ---

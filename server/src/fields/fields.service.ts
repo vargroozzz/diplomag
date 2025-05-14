@@ -39,8 +39,8 @@ export class FieldsService {
     }
   }
 
-  async findAllByUser(userId: string): Promise<Field[]> {
-    return await this.fieldModel.find({ user: new Types.ObjectId(userId) }).exec();
+  async findAll(): Promise<Field[]> {
+    return await this.fieldModel.find().exec();
   }
 
   async findOne(id: string, userId: string): Promise<Field> {

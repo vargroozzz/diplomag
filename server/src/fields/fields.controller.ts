@@ -25,10 +25,10 @@ export class FieldsController {
 
   @Get()
   @Version('1')
-  @ApiOperation({ summary: 'Get all fields for the current user' })
-  @ApiResponse({ status: 200, description: 'List of fields.' })
-  findAll(@GetUser() user: JwtUserPayload) {
-    return this.fieldsService.findAllByUser(user.userId);
+  @ApiOperation({ summary: 'Get all fields (publicly listed)' })
+  @ApiResponse({ status: 200, description: 'List of all fields.' })
+  findAll() {
+    return this.fieldsService.findAll();
   }
 
   @Get(':id')

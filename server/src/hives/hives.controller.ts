@@ -25,10 +25,10 @@ export class HivesController {
 
   @Get()
   @Version('1')
-  @ApiOperation({ summary: 'Get all hives for the current user' })
-  @ApiResponse({ status: 200, description: 'List of hives.' })
-  findAll(@GetUser() user: JwtUserPayload) {
-    return this.hivesService.findAllByUser(user.userId);
+  @ApiOperation({ summary: 'Get all hives (publicly listed)' })
+  @ApiResponse({ status: 200, description: 'List of all hives.' })
+  findAll() {
+    return this.hivesService.findAll();
   }
 
   @Get(':id')

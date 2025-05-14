@@ -17,8 +17,8 @@ export class HivesService {
     return await createdHive.save();
   }
 
-  async findAllByUser(userId: string): Promise<Hive[]> {
-    return await this.hiveModel.find({ user: new Types.ObjectId(userId) }).exec();
+  async findAll(): Promise<Hive[]> {
+    return await this.hiveModel.find().exec();
   }
 
   async findOne(id: string, userId: string): Promise<Hive> {

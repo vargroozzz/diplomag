@@ -42,5 +42,12 @@ jobs:
       - name: Run Deployment
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
-        run: make deploy 
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+          MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
+        run: make deploy
 

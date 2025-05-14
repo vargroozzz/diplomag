@@ -1,0 +1,36 @@
+name: Lint Pull Request
+
+on:
+  pull_request:
+    branches:
+      - master
+      # You can add more branches here, e.g.:
+      # - develop
+
+jobs:
+  lint:
+    name: Run Linters
+    runs-on: ubuntu-latest # Use the latest stable Ubuntu runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # Adjusted to >=22 as per server package.json engines field
+          cache: 'npm' # Enable caching for npm dependencies globally
+
+      - name: Install Client Dependencies
+        run: |
+          cd client
+          npm ci # Use npm ci for faster, more reliable installs in CI
+
+      - name: Install Server Dependencies
+        run: |
+          cd server
+          npm ci
+
+      - name: Run Linters (Client & Server)
+        run: make lint_ci # This command comes from your Makefile 

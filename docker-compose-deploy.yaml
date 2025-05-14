@@ -7,8 +7,12 @@ services:
     depends_on:
       - backend
     environment:
-      - NODE_ENV=production
-      - VITE_API_URL=http://backend:4000
+      NODE_ENV: production
+      VITE_API_URL: http://backend:4000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`beekeepers.community`)"
+      - "traefik.http.routers.whoami.tls.certresolver=letsencrypt"
 
   backend:
     build: ./server
@@ -17,7 +21,7 @@ services:
     depends_on:
       - mongodb
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/beekeepers
+      MONGODB_URI: "${MONGODB_URL?}"
       JWT_SECRET: rxRkSCngw2mOZUeUWAT1d4KMNKBSRpv3
       NODE_ENV: production
       FRONTEND_URL: http://frontend:3000

@@ -37,11 +37,9 @@ jobs:
           
           echo "Verifying Docker connection to remote host..."
           docker version
-      - name: test
-        run: |
           docker context ls
-          docker ps -a
-          printenv
- 
-    # - name: Run Deployment
-    #   run: make deploy 
+      - name: Run Deployment
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: make deploy 
+

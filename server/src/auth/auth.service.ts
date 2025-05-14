@@ -42,7 +42,12 @@ export class AuthService {
   }
 
   async login(user: AuthenticatedUserLoginPayload) {
-    const payload = { email: user.email, sub: user._id.toString(), username: user.username };
+    const payload = { 
+      email: user.email, 
+      sub: user._id.toString(), 
+      username: user.username, 
+      isAdmin: user.isAdmin
+    };
     return {
       access_token: this.jwtService.sign(payload),
       refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
@@ -51,6 +56,7 @@ export class AuthService {
         email: user.email,
         username: user.username,
         isEmailVerified: user.isEmailVerified,
+        isAdmin: user.isAdmin
       },
     };
   }
@@ -169,16 +175,21 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify(refreshToken, { ignoreExpiration: false });
-      if (!payload || !payload.sub) {
+      const verifiedPayload = this.jwtService.verify(refreshToken, { ignoreExpiration: false });
+      if (!verifiedPayload || !verifiedPayload.sub) {
           throw new UnauthorizedException('Invalid refresh token payload');
       }
       
-      const user = await this.usersService.findOne(payload.sub) as UserWithId | null;
+      const user = await this.usersService.findOne(verifiedPayload.sub) as UserWithId | null;
       if (!user || !user.isEmailVerified) {
         throw new UnauthorizedException('Invalid user or email not verified for refresh token.');
       }
-      const accessPayload = { email: user.email, sub: user._id.toString(), username: user.username };
+      const accessPayload = { 
+        email: user.email, 
+        sub: user._id.toString(), 
+        username: user.username,
+        isAdmin: user.isAdmin
+      };
       return {
         access_token: this.jwtService.sign(accessPayload),
       };

@@ -18,8 +18,6 @@ services:
     build: ./server
     expose:
       - "4000"
-    depends_on:
-      - mongodb
     environment:
       MONGODB_URI: "${MONGODB_URI?}"
       JWT_SECRET: rxRkSCngw2mOZUeUWAT1d4KMNKBSRpv3

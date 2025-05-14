@@ -92,4 +92,14 @@ clean_practice_report: practice_report_clean
 view_practice_report: practice_report_view
 
 compile_presentation: presentation_compile_pdf
-view_presentation: presentation_view_pdf 
+view_presentation: presentation_view_pdf
+
+# CI Commands
+.PHONY: lint_ci
+
+lint_ci:
+	@echo "Linting client code for CI..."
+	cd client && npm run lint
+	@echo "Linting server code for CI..."
+	cd server && npm run lint -- --max-warnings 0
+	@echo "Linting for CI complete." 

@@ -63,6 +63,15 @@ export interface UserProfile {
   isAdmin?: boolean;
   createdAt?: string;
   updatedAt?: string;
+
+  // New beekeeping-specific fields
+  hiveCount?: number;
+  yearsOfExperience?: number;
+  beeTypes?: string[];
+  primaryForage?: string[];
+  beekeepingInterests?: string[];
+  lookingFor?: string;
+  offering?: string;
 }
 
 export interface UserSettings {

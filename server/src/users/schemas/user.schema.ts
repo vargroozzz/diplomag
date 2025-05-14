@@ -21,7 +21,7 @@ export class User {
   location?: string;
 
   @Prop([String])
-  expertise: string[];
+  expertise?: string[];
 
   @Prop({ default: false })
   isEmailVerified: boolean;
@@ -34,6 +34,27 @@ export class User {
 
   @Prop({ default: false })
   isAdmin: boolean;
+
+  @Prop({ type: Number, min: 0 })
+  hiveCount?: number;
+
+  @Prop({ type: Number, min: 0 })
+  yearsOfExperience?: number;
+
+  @Prop([String])
+  beeTypes?: string[];
+
+  @Prop([String])
+  primaryForage?: string[];
+
+  @Prop([String])
+  beekeepingInterests?: string[];
+
+  @Prop()
+  lookingFor?: string;
+
+  @Prop()
+  offering?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User); 

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
+import FaqSection from '../components/faq/FaqSection';
 
 interface Resource {
   id: string;
@@ -20,6 +21,8 @@ interface Resource {
   tags: string[];
   url: string;
 }
+
+const FEATURE_FLAG_AI_FAQ_ENABLED = false;
 
 const mockResources: Resource[] = [
   {
@@ -131,6 +134,12 @@ const KnowledgeBase: React.FC = () => {
             </Card>
           ))}
         </Box>
+
+        {/* FAQ SECTION USING AI */}
+        {FEATURE_FLAG_AI_FAQ_ENABLED && (<Box sx={{ mt: 6, mb: 4 }}>
+          <FaqSection />
+        </Box>)}
+
       </Box>
     </Container>
   );

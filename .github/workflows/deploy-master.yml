@@ -1,0 +1,48 @@
+name: Deploy to Production on Master Push
+
+on:
+  push:
+    branches:
+      - master # Or your main production branch
+
+jobs:
+  deploy:
+    name: Deploy to Remote Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Checks out your repository code
+
+      - name: Set up Docker CLI
+        uses: docker/setup-cli-action@v2 # Ensures Docker CLI is available on the runner
+
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Configure DOCKER_HOST and Add Remote Host to Known Hosts
+        env:
+          # IMPORTANT: Replace with your actual remote server user and IP/hostname
+          # These should ideally be set as GitHub secrets for better security and flexibility
+          REMOTE_DOCKER_USER: ${{ secrets.REMOTE_DOCKER_USER }} # Example: your_ssh_user
+          REMOTE_DOCKER_HOST_IP: ${{ secrets.REMOTE_DOCKER_HOST_IP }} # Example: your_remote_server_ip_or_hostname
+        run: |
+          echo "Setting DOCKER_HOST to ssh://${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST_IP}"
+          echo "DOCKER_HOST=ssh://${REMOTE_DOCKER_USER}@${REMOTE_DOCKER_HOST_IP}" >> $GITHUB_ENV
+          
+          echo "Adding remote host to known_hosts"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${REMOTE_DOCKER_HOST_IP}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          
+          echo "Verifying Docker connection to remote host..."
+          docker version # This should now connect to the remote Docker daemon
+          docker context ls # To see current context
+
+      - name: Run Deployment
+        # DOCKER_HOST is now set from the previous step via $GITHUB_ENV
+        # The 'make deploy' command will use this DOCKER_HOST setting
+        # Ensure your Makefile and docker-compose.yml are in the checked-out code
+        run: make deploy 

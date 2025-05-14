@@ -9,6 +9,7 @@ import { ArticlesModule } from './articles/articles.module';
 import { HivesModule } from './hives/hives.module';
 import { FieldsModule } from './fields/fields.module';
 import { HealthModule } from './health/health.module';
+// import { FaqModule } from './faq/faq.module'; // Commented out to disable FAQ endpoint
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { HealthModule } from './health/health.module';
     HivesModule,
     FieldsModule,
     HealthModule,
+    // FaqModule, // Commented out
   ],
 })
 export class AppModule {} 

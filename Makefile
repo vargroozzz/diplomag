@@ -61,7 +61,35 @@ practice_report_view:
 	@echo "Opening practice report PDF..."
 	open $(PRACTICE_PDF_FILE)
 
+# Marp Presentation for Practice Report
+PRESENTATION_MD_FILE = $(PRACTICE_REPORT_DIR)/practice_report_presentation.md
+PRESENTATION_PDF_FILE = $(PRACTICE_REPORT_DIR)/practice_report_presentation.pdf
+PRESENTATION_HTML_FILE = $(PRACTICE_REPORT_DIR)/practice_report_presentation.html
+
+.PHONY: presentation_compile_pdf presentation_compile_html presentation_view_pdf presentation_view_html
+
+presentation_compile_pdf:
+	@echo "Compiling Marp presentation to PDF..."
+	npx @marp-team/marp-cli --pdf $(PRESENTATION_MD_FILE) -o $(PRESENTATION_PDF_FILE)
+	@echo "Presentation PDF generated at $(PRESENTATION_PDF_FILE)"
+
+presentation_compile_html:
+	@echo "Compiling Marp presentation to HTML..."
+	npx @marp-team/marp-cli --html $(PRESENTATION_MD_FILE) -o $(PRESENTATION_HTML_FILE)
+	@echo "Presentation HTML generated at $(PRESENTATION_HTML_FILE)"
+
+presentation_view_pdf:
+	@echo "Opening presentation PDF..."
+	open $(PRESENTATION_PDF_FILE)
+
+presentation_view_html:
+	@echo "Opening presentation HTML in default browser..."
+	open $(PRESENTATION_HTML_FILE)
+
 # Alias for easier use
 compile_practice_report: practice_report_compile
 clean_practice_report: practice_report_clean
-view_practice_report: practice_report_view 
+view_practice_report: practice_report_view
+
+compile_presentation: presentation_compile_pdf
+view_presentation: presentation_view_pdf 

@@ -26,10 +26,9 @@ const AdminPage: React.FC = () => {
     }
     try {
       await updateAdminStatus({ userId, isAdmin: !currentIsAdmin }).unwrap();
-      refetch(); // Refetch user list after update
+      refetch();
     } catch (err) {
       console.error('Failed to update admin status:', err);
-      // TODO: Show user-facing error (e.g., using a Snackbar)
       alert(t('adminPage.updateStatusError', 'Failed to update admin status.'));
     }
   };

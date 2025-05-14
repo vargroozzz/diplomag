@@ -29,8 +29,11 @@ export const usersApi = createApi({
       }),
       invalidatesTags: (_result, _error, { userId }) => [{ type: 'User', id: userId }],
     }),
-    getAllUsersAdmin: builder.query<UserProfile[], void>({
+    getAllUsersAdmin: builder.query<UserProfile[], void>({ 
       query: () => 'users/admin/all',
+      transformResponse: (response: (Omit<UserProfile, 'id'> & { _id: string })[]) => {
+        return response.map(user => ({ ...user, id: user._id }));
+      },
       providesTags: (result) => 
         result
           ? [
@@ -45,6 +48,10 @@ export const usersApi = createApi({
         method: 'PATCH',
         body,
       }),
+      transformResponse: (response: (Omit<UserProfile, 'id'> & { _id: string })) => {
+        // Also transform response for single user update if backend sends _id
+        return { ...response, id: response._id }; 
+      },
       invalidatesTags: (_result, _error, { userId }) => [
         { type: 'AllUsersAdmin', id: 'LIST' }, 
         { type: 'User', id: userId }

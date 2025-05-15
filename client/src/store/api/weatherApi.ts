@@ -6,9 +6,20 @@ export interface WeatherForecastQueryArgs {
   lon: number;
 }
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export const weatherApi = createApi({
   reducerPath: 'weatherApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api/v1/' }), // Adjust baseUrl if your API prefix is different
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: `${apiUrl}/api/v1`,
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     getWeatherForecast: builder.query<ProcessedWeatherForecast | null, WeatherForecastQueryArgs>({
       query: ({ lat, lon }) => `weather/forecast?lat=${lat}&lon=${lon}`,

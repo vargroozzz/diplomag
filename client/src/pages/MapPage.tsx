@@ -2,16 +2,35 @@ import React, { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, useMapEvents, Polyline } from 'react-leaflet';
 import L, { LatLngExpression, LatLngTuple, LatLng } from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
-import { Container, Typography, Box, CircularProgress, Button, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Button, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import HiveIcon from '@mui/icons-material/Hive';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import { useTranslation } from 'react-i18next';
 import { useGetHivesQuery, useGetFieldsQuery, useAddHiveMutation, useAddFieldMutation, useDeleteHiveMutation, useUpdateFieldMutation, Hive, Field } from '../store/api/mapApi';
 import AddHiveDialog from '../components/map/AddHiveDialog';
 import AddFieldDialog, { FieldFormData } from '../components/map/AddFieldDialog';
 import EditFieldDialog, { EditFieldFormData } from '../components/map/EditFieldDialog';
+import { useLazyGetWeatherForecastQuery } from '../store/api/weatherApi';
+
+// Helper to get approximate center of a polygon
+const getPolygonApproxCenter = (polygonCoordinates: Array<Array<[number, number]>>): { lat: number; lon: number } | null => {
+  if (!polygonCoordinates || polygonCoordinates.length === 0 || polygonCoordinates[0].length === 0) {
+    return null;
+  }
+  const coords = polygonCoordinates[0]; // Assuming the first array is the outer ring
+  if (coords.length === 0) return null;
+
+  let sumLat = 0;
+  let sumLon = 0;
+  for (const point of coords) {
+    sumLon += point[0]; // GeoJSON order: [longitude, latitude]
+    sumLat += point[1];
+  }
+  return { lat: sumLat / coords.length, lon: sumLon / coords.length };
+};
 
 // Component to handle map clicks for adding new items
 interface MapClickHandlerProps {
@@ -107,6 +126,10 @@ const MapPage: React.FC = () => {
   // State for edit field dialog
   const [isEditFieldDialogOpen, setIsEditFieldDialogOpen] = useState(false);
   const [fieldToEdit, setFieldToEdit] = useState<Field | null>(null);
+
+  // Weather forecast hook and state
+  const [triggerGetWeather, { data: weatherData, isLoading: isLoadingWeather, isFetching: isFetchingWeather, error: weatherError }] = useLazyGetWeatherForecastQuery();
+  const [activeFieldIdForWeather, setActiveFieldIdForWeather] = useState<string | null>(null);
 
   const handleMapClick = (latLng: LatLng) => {
     if (isAddHiveMode) {
@@ -224,6 +247,19 @@ const MapPage: React.FC = () => {
       // Potentially show error in dialog or via snackbar
     }
   };
+
+  // Handler for when a field popup is opened
+  const onFieldPopupOpen = (field: Field) => {
+    const center = getPolygonApproxCenter(field.geometry.coordinates);
+    if (center) {
+      setActiveFieldIdForWeather(field._id);
+      triggerGetWeather({ lat: center.lat, lon: center.lon });
+    }
+  };
+
+  const onFieldPopupClose = () => {
+    setActiveFieldIdForWeather(null); // Clear active field when popup closes
+  }
 
   if (isLoadingHives || isLoadingFields) {
     return (
@@ -353,6 +389,10 @@ const MapPage: React.FC = () => {
                 key={field._id} 
                 pathOptions={{ color: treatmentStatus.color }} 
                 positions={polygonPositions}
+                eventHandlers={{
+                  popupopen: () => onFieldPopupOpen(field),
+                  popupclose: onFieldPopupClose,
+                }}
               >
                 <Popup>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: '250px' }}>
@@ -376,6 +416,53 @@ const MapPage: React.FC = () => {
                         ))}
                       </ul>
                     </Box>
+                  )}
+                  {/* Weather Information Section */}
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="body2" component="div" sx={{ fontWeight: 'bold' }}>
+                    {t('map.fieldPopup.weatherForecast', 'Weather Forecast')}:
+                  </Typography>
+                  {activeFieldIdForWeather === field._id ? (
+                    <Box sx={{mt: 0.5}}>
+                      {isLoadingWeather || isFetchingWeather ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <CircularProgress size={16} sx={{mr:1}}/> 
+                          <Typography variant="caption">{t('map.fieldPopup.loadingWeather', 'Loading weather...')}</Typography>
+                        </Box>
+                      ) : weatherError ? (
+                        // Using Typography for error as Alert was removed for now
+                        <Typography variant="caption" color="error">
+                          {t('map.fieldPopup.weatherError', 'Could not load weather.')}
+                        </Typography>
+                      ) : weatherData ? (
+                        <Box>
+                          <Typography variant="caption">
+                            {t('map.fieldPopup.location', 'Location')}: {weatherData.locationName}
+                          </Typography>
+                          <br />
+                          <Typography variant="caption">
+                            {t('map.fieldPopup.current', 'Current')}: {weatherData.currentWeatherDescription}
+                            {weatherData.relevantForecasts[0] && ` (${weatherData.relevantForecasts[0].temp}°C)`}
+                          </Typography>
+                          <br />
+                          {weatherData.willHavePrecipitationSoon ? (
+                            <Typography variant="caption" sx={{color: 'info.main'}}>
+                               <WaterDropIcon sx={{ fontSize: '1em', verticalAlign: 'middle', mr: 0.5 }} />
+                               {t('map.fieldPopup.nextRain', 'Next rain')}: {weatherData.nextPrecipitationType} {t('map.fieldPopup.atTime', 'at')} {weatherData.nextPrecipitationTime} 
+                               ({t('map.fieldPopup.chance', 'Chance')}: {Math.round((weatherData.nextPrecipitationChance ?? 0) * 100)}%)
+                            </Typography>
+                          ) : (
+                            <Typography variant="caption">{t('map.fieldPopup.noRainSoon', 'No significant rain expected soon.')}</Typography>
+                          )}
+                        </Box>
+                      ) : (
+                        <Typography variant="caption">{t('map.fieldPopup.noWeatherData', 'No weather data available.')}</Typography>
+                      )}
+                    </Box>
+                  ) : (
+                     <Typography variant="caption" sx={{fontStyle: 'italic', display: 'block', mt: 0.5}}>
+                       {t('map.fieldPopup.clickToLoadWeather', 'Click field again to load weather if popup closed.')}
+                    </Typography>
                   )}
                 </Popup>
               </Polygon>

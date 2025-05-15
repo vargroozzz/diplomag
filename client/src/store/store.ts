@@ -5,6 +5,7 @@ import { forumApi } from './api/forumApi';
 import { knowledgeBaseApi } from './api/knowledgeBaseApi';
 import { mapApi } from './api/mapApi';
 import { faqApi } from './api/faqApi';
+import { weatherApi } from './api/weatherApi';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     [knowledgeBaseApi.reducerPath]: knowledgeBaseApi.reducer,
     [mapApi.reducerPath]: mapApi.reducer,
     [faqApi.reducerPath]: faqApi.reducer,
+    [weatherApi.reducerPath]: weatherApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -23,6 +25,7 @@ export const store = configureStore({
       knowledgeBaseApi.middleware,
       mapApi.middleware,
       faqApi.middleware,
+      weatherApi.middleware,
     ),
 });
 

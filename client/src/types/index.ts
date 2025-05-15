@@ -79,4 +79,56 @@ export interface UserSettings {
   pushNotifications: boolean;
   language: string;
   darkMode: boolean;
+}
+
+export interface Hive {
+  _id: string;
+  name: string;
+  notes?: string;
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  user: string; // User ID
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Field {
+  _id: string;
+  name: string;
+  cropType: string;
+  bloomingPeriodStart: string;
+  bloomingPeriodEnd: string;
+  treatmentDates?: string[]; 
+  geometry: {
+    type: 'Polygon';
+    coordinates: Array<Array<[number, number]>>;
+  };
+  user: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Weather Forecast Types
+export interface RelevantForecastEntry {
+  time: string; 
+  conditionId: number;
+  conditionMain: string;
+  conditionDescription: string;
+  temp: number;
+  chanceOfPrecipitation: number; 
+  rainVolume?: number; 
+  snowVolume?: number; 
+}
+
+export interface ProcessedWeatherForecast {
+  locationName: string;
+  isRainingCurrently: boolean; 
+  willHavePrecipitationSoon: boolean; 
+  nextPrecipitationTime?: string; 
+  nextPrecipitationChance?: number;
+  nextPrecipitationType?: string;
+  currentWeatherDescription?: string;
+  relevantForecasts: RelevantForecastEntry[]; 
 } 

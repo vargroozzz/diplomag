@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Query, Logger, HttpException, HttpStatus, Version } from '@nestjs/common';
 import { WeatherService, ProcessedWeatherForecast } from './weather.service';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -10,6 +10,7 @@ export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
   @Get('forecast')
+  @Version('1')
   @ApiOperation({ summary: 'Get processed weather forecast for given coordinates' })
   @ApiQuery({ name: 'lat', type: 'number', required: true, description: 'Latitude' })
   @ApiQuery({ name: 'lon', type: 'number', required: true, description: 'Longitude' })

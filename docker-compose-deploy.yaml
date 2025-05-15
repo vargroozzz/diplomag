@@ -35,4 +35,3 @@ networks:
     name: proxy
     external: true
 
-

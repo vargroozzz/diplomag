@@ -22,12 +22,10 @@ services:
       MONGODB_URI: "${MONGODB_URI?}"
       MAILGUN_API_KEY: "${MAILGUN_API_KEY?}"
       EMAIL_FROM: "Beekeepers <noreply@mail.beekeepers.community>"
-      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID?}"
       JWT_SECRET: "${JWT_SECRET?}"
       GOOGLE_CALLBACK_URL: "${GOOGLE_CALLBACK_URL?}"
       GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID?}"
       GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET?}"
-      MAILGUN_API_KEY: "${MAILGUN_API_KEY?}"
       MAILGUN_DOMAIN: "${MAILGUN_DOMAIN?}"
       NODE_ENV: production
       FRONTEND_URL: http://frontend:3000

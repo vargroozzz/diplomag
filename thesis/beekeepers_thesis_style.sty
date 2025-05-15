@@ -102,17 +102,18 @@
     pdfpagemode=UseOutlines % Show bookmarks panel by default
 }
 
-% --- Header/Footer (Simple page numbering for now) ---
-\pagestyle{plain} % Plain page numbers at the bottom center
-% For more complex headers/footers (e.g., chapter name in header):
-% \RequirePackage{fancyhdr}
-% \pagestyle{fancy}
-% \fancyhf{}
-% \fancyhead[R]{\nouppercase{\leftmark}} % Chapter name on right (even pages)
-% \fancyhead[L]{\nouppercase{\rightmark}} % Section name on left (odd pages)
-% \fancyfoot[C]{\thepage}
-% \renewcommand{\headrulewidth}{0.4pt}
-% \renewcommand{\footrulewidth}{0pt}
+% --- Header/Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}% Clear header/footer
+  \fancyhead[R]{\thepage}% Page number top right
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
 
 % --- Language Specific Settings ---
 % Ukrainian names for standard parts

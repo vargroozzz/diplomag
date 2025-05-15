@@ -17,30 +17,24 @@
 \input{title_page.tex} % Include the title page content
 
 \cleardoublepage
+\pagenumbering{arabic} % Start Arabic numbering for the entire document
+\setcounter{page}{2}    % Set the Abstract to be page 2
 
 % --- Abstract (Ukrainian) ---
 \input{abstract_uk.tex}
-\cleardoublepage
-% Remove roman numbering for front matter
-% \pagenumbering{roman} 
 
-\pagenumbering{arabic} % Start Arabic numbering for the entire document after title page
-\setcounter{page}{2}    % Ensure page numbering starts at 1 (or 2 if title page is considered 1)
-                        % Depending on class, title page might not be numbered or be page 0 implicitly.
-                        % If title page should be page 1, this setcounter might need adjustment or 
-                        % to be placed carefully after titlepage processing by the class.
-                        % For now, aiming for content AFTER title page to start at 1.
+\cleardoublepage
 
 % --- Table of Contents ---
 \tableofcontents
 \cleardoublepage
 
 % --- Introduction (Input before main content) ---
+% No need to reset page numbering here, it continues from ToC
 \input{introduction.tex}
 \cleardoublepage
 
 % --- Main Content (Chapters) ---
-% \pagenumbering{arabic} % This is now moved up
 \input{chapter1.tex}   % Analysis of the Subject Area
 \input{chapter2.tex}   % System Design
 \input{chapter3.tex}   % Implementation

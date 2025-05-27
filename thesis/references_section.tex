@@ -4,6 +4,8 @@
 \cleardoublepage % Ensure bibliography starts on a new page (if using twoside option)
 \phantomsection % Create a phantom section for hyperref to link to this from ToC
 
-\bibliographystyle{plain} % Using a standard style for now.
-% You will need to change this to your university's required style (e.g., a GOST style).
+% Set Ukrainian language specifically for the bibliography
+\selectlanguage{ukrainian}
+
+\bibliographystyle{unsrt} % Using standard style but with Ukrainian language
 \bibliography{bibliography} % Assumes bibliography.bib in the same directory 

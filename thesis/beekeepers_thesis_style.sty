@@ -9,6 +9,7 @@
 % \RequirePackage[utf8]{inputenc}  % UTF-8 input encoding (Handled natively by XeLaTeX/LuaLaTeX)
 \RequirePackage{fontspec}       % Use system fonts (XeLaTeX/LuaLaTeX)
 \RequirePackage[ukrainian,english]{babel} % Ukrainian and English language support (Load AFTER fontspec)
+\RequirePackage[autostyle=true]{csquotes} % Proper quotation marks handling without specifying ukrainian
 \RequirePackage{geometry}       % For page margins
 \RequirePackage{setspace}       % For line spacing
 % \RequirePackage{times}          % Use Times New Roman font family (Use fontspec instead)
@@ -118,7 +119,7 @@
 % --- Language Specific Settings ---
 % Ukrainian names for standard parts
 \addto\captionsukrainian{
-  \renewcommand{\bibname}{Список використаних джерел} % Bibliography title
+  \renewcommand{\bibname}{СПИСОК ВИКОРИСТАНИХ ДЖЕРЕЛ} % Bibliography title
   \renewcommand{\contentsname}{Зміст} % Table of Contents title
   \renewcommand{\listfigurename}{Перелік рисунків} % List of Figures title
   \renewcommand{\listtablename}{Перелік таблиць} % List of Tables title
